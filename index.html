@@ -379,10 +379,10 @@
     <div class="form-group" style="margin-bottom:0">
       <label>Anthropic API Key</label>
       <div style="position:relative">
-        <input type="password" id="api-key" placeholder="sk-ant-api03-..." style="padding-right:90px" />
+        <input type="password" id="api-key" placeholder="sk-or-v1-..." style="padding-right:90px" />
         <button onclick="toggleApiVis()" id="btn-vis" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--muted);font-size:12px;padding:4px 10px;cursor:pointer;font-family:'DM Sans',sans-serif;">Lihat</button>
       </div>
-      <p style="margin-top:8px;font-size:12px;color:var(--muted);">🔒 Key hanya tersimpan di browser kamu. Dapatkan di <a href="https://console.anthropic.com" target="_blank" style="color:var(--accent)">console.anthropic.com</a></p>
+      <p style="margin-top:8px;font-size:12px;color:var(--muted);">🔒 Key hanya tersimpan di browser kamu. Dapatkan di <a href="https://openrouter.ai/keys" target="_blank" style="color:var(--accent)">openrouter.ai/keys</a></p>
     </div>
     <div style="margin-top:12px;display:flex;gap:8px">
       <button onclick="saveApiKey()" style="flex:1;padding:10px;background:linear-gradient(135deg,var(--accent),#a855f7);border:none;border-radius:10px;color:white;font-family:'Syne',sans-serif;font-weight:700;font-size:14px;cursor:pointer;">Simpan Key</button>
@@ -549,34 +549,30 @@ Balas HANYA dalam format JSON seperti ini (tanpa backtick, tanpa komentar):
 
     try {
       const payload = {
-        model: 'claude-sonnet-4-20250514',
+        model: 'anthropic/claude-haiku-4-5',
         max_tokens: 1000,
-        system: 'Kamu adalah copywriter viral. Balas HANYA dengan JSON valid, tanpa teks lain sama sekali.',
-        messages: [{ role: 'user', content: prompt }]
+        messages: [
+          { role: 'user', content: 'System: Kamu adalah copywriter viral. Balas HANYA dengan JSON valid, tanpa teks lain sama sekali.\n\n' + prompt }
+        ]
       };
       const headers = {
         'Content-Type': 'application/json',
-        'x-api-key': getApiKey(),
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
+        'Authorization': 'Bearer ' + getApiKey(),
+        'HTTP-Referer': 'https://aswmdk-cpu.github.io',
+        'X-Title': 'Threads Utas Generator'
       };
 
-      let res;
-      try {
-        res = await fetch('https://api.anthropic.com/v1/messages', {
-          method: 'POST', headers, body: JSON.stringify(payload)
-        });
-      } catch(e) {
-        const proxy = 'https://corsproxy.io/?' + encodeURIComponent('https://api.anthropic.com/v1/messages');
-        const h2 = {...headers};
-        delete h2['anthropic-dangerous-direct-browser-access'];
-        res = await fetch(proxy, { method: 'POST', headers: h2, body: JSON.stringify(payload) });
-      }
+      const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        method: 'POST', headers, body: JSON.stringify(payload)
+      });
 
       const data = await res.json();
       if (!res.ok) throw new Error(data.error?.message || 'API error');
+      
+      // OpenRouter returns choices format
+      const raw = data.choices?.[0]?.message?.content || '';
 
-      const raw = data.content.map(c => c.text || '').join('');
+      // raw already set above
       const clean = raw.replace(/```json|```/g, '').trim();
       const parsed = JSON.parse(clean);
 
@@ -650,8 +646,8 @@ Balas HANYA dalam format JSON seperti ini (tanpa backtick, tanpa komentar):
 
   function saveApiKey() {
     const key = document.getElementById('api-key').value.trim();
-    if (!key.startsWith('sk-ant-')) {
-      showKeyStatus('Format key tidak valid. Harus dimulai dengan sk-ant-', false);
+    if (!key.startsWith('sk-or-')) {
+      showKeyStatus('Format key tidak valid. Harus dimulai dengan sk-or-', false);
       return;
     }
     localStorage.setItem('anthropic_api_key', key);
