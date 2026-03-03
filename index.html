@@ -405,6 +405,59 @@
   @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
   @keyframes spin { to { transform: rotate(360deg); } }
 
+  /* Editable thread */
+  .thread-text[contenteditable="true"] {
+    border: 1px solid var(--accent);
+    border-radius: 8px;
+    padding: 8px;
+    outline: none;
+    background: rgba(124,92,252,0.05);
+    cursor: text;
+  }
+
+  .btn-edit.editing { border-color: var(--accent); color: var(--accent); }
+
+  /* History */
+  .history-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 16px 20px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+
+  .history-card:hover { border-color: rgba(124,92,252,0.4); }
+  .history-title { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+  .history-meta { font-size: 11px; color: var(--muted); }
+
+  /* Template pills */
+  .template-pill {
+    padding: 6px 12px;
+    border-radius: 100px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+
+  .template-pill:hover { border-color: var(--accent); color: var(--text); background: rgba(124,92,252,0.1); }
+
+  .template-scroll {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    scrollbar-width: none;
+  }
+
+  .template-scroll::-webkit-scrollbar { display: none; }
+
   @media (max-width: 560px) {
     .form-row { grid-template-columns: 1fr; }
     .card { padding: 20px; }
@@ -438,6 +491,22 @@
 
   <div class="card">
     <div class="section-label">Topik & Konten</div>
+
+    <div class="form-group">
+      <label>⚡ Template Topik Populer</label>
+      <div class="template-scroll">
+        <div class="template-pill" onclick="setTopic('5 produk Shopee yang lagi viral dan worth it dibeli')">🛍️ Shopee Viral</div>
+        <div class="template-pill" onclick="setTopic('Tips hemat belanja bulanan untuk ibu rumah tangga')">💰 Hemat Belanja</div>
+        <div class="template-pill" onclick="setTopic('Skincare routine pagi hari yang simpel dan efektif')">✨ Skincare</div>
+        <div class="template-pill" onclick="setTopic('Tips masak cepat untuk ibu sibuk di pagi hari')">🍳 Masak Cepat</div>
+        <div class="template-pill" onclick="setTopic('Cara dapat penghasilan tambahan dari rumah untuk ibu rumah tangga')">💸 Penghasilan Tambahan</div>
+        <div class="template-pill" onclick="setTopic('Review produk kecantikan lokal yang harganya terjangkau')">💄 Review Produk</div>
+        <div class="template-pill" onclick="setTopic('Tips mendidik anak dengan sabar dan penuh kasih sayang')">👶 Parenting</div>
+        <div class="template-pill" onclick="setTopic('Cara declutter rumah biar lebih rapi dan nyaman')">🏠 Declutter</div>
+        <div class="template-pill" onclick="setTopic('Tips jaga hubungan suami istri tetap harmonis')">❤️ Relationship</div>
+        <div class="template-pill" onclick="setTopic('Rekomendasi buku self improvement yang wajib dibaca')">📚 Self Improvement</div>
+      </div>
+    </div>
 
     <div class="form-group">
       <label>Topik / Judul Utas</label>
@@ -527,6 +596,16 @@
       <button class="btn-copy-all" id="btn-copy-all">Copy Semua</button>
     </div>
     <div class="thread-list" id="thread-list"></div>
+  </div>
+
+  <div id="history-area" style="display:none;margin-top:24px">
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <div class="section-label" style="margin-bottom:0">🕓 Riwayat Generate</div>
+        <button onclick="clearAllHistory()" style="padding:5px 12px;background:transparent;border:1px solid var(--border);border-radius:8px;color:var(--muted);font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;">Hapus Semua</button>
+      </div>
+      <div id="history-list"></div>
+    </div>
   </div>
 </div>
 
@@ -702,6 +781,7 @@ ${prompt}`
       }
 
       renderThreads(parsed.threads);
+      saveHistory(document.getElementById('topic').value.trim(), parsed.threads);
     } catch (err) {
       showError('Gagal generate: ' + err.message);
     } finally {
@@ -729,10 +809,24 @@ ${prompt}`
         <div class="thread-footer">
           <span class="char-count ${countClass}" id="char-${t.num}">${len}/500 karakter</span>
           <div style="display:flex;gap:6px">
+            <button class="btn-copy btn-edit" style="font-size:11px;padding:5px 10px" onclick="toggleEdit(this, ${t.num})" title="Edit thread ini">✏️</button>
             <button class="btn-copy" style="font-size:11px;padding:5px 10px" onclick="regenThread(this, ${t.num})" title="Generate ulang thread ini">🔄</button>
             <button class="btn-copy" onclick="copyThread(this, '${t.num}')">Copy</button>
           </div>
         </div>`;
+      
+      // Live char count on edit
+      setTimeout(() => {
+        const el = document.getElementById('thread-text-' + t.num);
+        const charEl = document.getElementById('char-' + t.num);
+        if (el && charEl) {
+          el.addEventListener('input', () => {
+            const l = el.innerText.length;
+            charEl.textContent = l + '/500 karakter';
+            charEl.className = 'char-count' + (l > 500 ? ' over' : l > 400 ? ' warn' : '');
+          });
+        }
+      }, 50);
       list.appendChild(item);
     });
 
@@ -875,14 +969,6 @@ ${prompt}`
     el.textContent = msg;
   }
 
-  // Load saved key on startup
-  window.addEventListener('DOMContentLoaded', () => {
-    const saved = localStorage.getItem('anthropic_api_key');
-    if (saved) {
-      document.getElementById('api-key').value = saved;
-      showKeyStatus('✓ API key tersimpan & siap digunakan', true);
-    }
-  });
 
   // PWA Install
   let deferredPrompt;
