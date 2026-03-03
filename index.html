@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="theme-color" content="#7c5cfc">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Threads Gen">
+<link rel="manifest" href="data:application/json,{
+  %22name%22:%22Threads%20Utas%20Generator%22,
+  %22short_name%22:%22Threads%20Gen%22,
+  %22start_url%22:%22.%22,
+  %22display%22:%22standalone%22,
+  %22background_color%22:%22%230a0a0f%22,
+  %22theme_color%22:%22%237c5cfc%22,
+  %22icons%22:[{%22src%22:%22https://api.dicebear.com/7.x/shapes/svg?seed=threads%22,%22sizes%22:%22192x192%22,%22type%22:%22image/svg+xml%22}]
+}">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Threads Utas Generator</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0a0a0f;
+    --surface: #13131a;
+    --surface2: #1c1c28;
+    --border: #2a2a3d;
+    --accent: #7c5cfc;
+    --accent2: #fc5ca0;
+    --text: #e8e8f0;
+    --muted: #6b6b8a;
+    --success: #5cfca0;
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 0;
+  }
+
+  /* Animated background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: 
+      radial-gradient(ellipse 60% 50% at 20% 20%, rgba(124,92,252,0.12) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 60% at 80% 80%, rgba(252,92,160,0.10) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 40px 20px 80px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Header */
+  header {
+    text-align: center;
+    margin-bottom: 48px;
+    animation: fadeDown 0.6s ease both;
+  }
+
+  .logo-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(135deg, rgba(124,92,252,0.2), rgba(252,92,160,0.15));
+    border: 1px solid rgba(124,92,252,0.3);
+    border-radius: 100px;
+    padding: 6px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--accent);
+    margin-bottom: 20px;
+    letter-spacing: 0.05em;
+  }
+
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 800;
+    line-height: 1.1;
+    background: linear-gradient(135deg, #fff 0%, #c4b5fd 50%, #f9a8d4 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 12px;
+  }
+
+  .subtitle {
+    color: var(--muted);
+    font-size: 15px;
+    font-weight: 300;
+  }
+
+  /* Form card */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 32px;
+    margin-bottom: 24px;
+    animation: fadeUp 0.6s ease 0.1s both;
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  .form-group {
+    margin-bottom: 16px;
+  }
+
+  .form-group:last-child { margin-bottom: 0; }
+
+  label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  input, textarea, select {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 16px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    resize: vertical;
+  }
+
+  input:focus, textarea:focus, select:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(124,92,252,0.15);
+  }
+
+  select option { background: #1c1c28; }
+
+  textarea { min-height: 90px; }
+
+  /* Pill toggles */
+  .pill-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .pill {
+    padding: 7px 14px;
+    border-radius: 100px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+    user-select: none;
+  }
+
+  .pill:hover { border-color: var(--accent); color: var(--text); }
+  .pill.active {
+    background: linear-gradient(135deg, var(--accent), #a855f7);
+    border-color: transparent;
+    color: #fff;
+  }
+
+  /* Generate button */
+  .btn-generate {
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border: none;
+    border-radius: 14px;
+    color: white;
+    font-family: 'Syne', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
+    margin-top: 24px;
+    position: relative;
+    overflow: hidden;
+    letter-spacing: 0.02em;
+  }
+
+  .btn-generate:hover:not(:disabled) {
+    opacity: 0.92;
+    transform: translateY(-1px);
+    box-shadow: 0 8px 30px rgba(124,92,252,0.4);
+  }
+
+  .btn-generate:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .btn-generate .spinner {
+    display: none;
+    width: 18px; height: 18px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    margin: 0 auto;
+  }
+
+  .btn-generate.loading .btn-text { display: none; }
+  .btn-generate.loading .spinner { display: block; }
+
+  /* Output area */
+  #output-area {
+    display: none;
+    animation: fadeUp 0.5s ease both;
+  }
+
+  .output-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+
+  .output-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+  }
+
+  .btn-copy-all {
+    padding: 8px 16px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .btn-copy-all:hover { border-color: var(--accent); color: var(--accent); }
+
+  .thread-list { display: flex; flex-direction: column; gap: 12px; }
+
+  .thread-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    position: relative;
+    transition: border-color 0.2s;
+    animation: fadeUp 0.4s ease both;
+  }
+
+  .thread-item:hover { border-color: rgba(124,92,252,0.4); }
+
+  .thread-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .thread-text {
+    font-size: 15px;
+    line-height: 1.7;
+    color: var(--text);
+    white-space: pre-wrap;
+  }
+
+  .thread-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 12px;
+  }
+
+  .char-count {
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .char-count.warn { color: #fbbf24; }
+  .char-count.over { color: #f87171; }
+
+  .btn-copy {
+    padding: 5px 12px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--muted);
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .btn-copy:hover { border-color: var(--success); color: var(--success); }
+  .btn-copy.copied { border-color: var(--success); color: var(--success); }
+
+  /* Error */
+  .error-msg {
+    background: rgba(248,113,113,0.1);
+    border: 1px solid rgba(248,113,113,0.3);
+    border-radius: 12px;
+    padding: 16px;
+    color: #f87171;
+    font-size: 14px;
+    margin-top: 16px;
+  }
+
+  /* Section label */
+  .section-label {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  @keyframes fadeDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  @media (max-width: 560px) {
+    .form-row { grid-template-columns: 1fr; }
+    .card { padding: 20px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div class="logo-badge">✦ AI-Powered</div>
+    <h1>Threads Utas<br>Generator</h1>
+    <p class="subtitle">Buat utas viral dalam hitungan detik</p>
+  </header>
+
+  <div class="card" id="apikey-card">
+    <div class="section-label">🔑 API Key</div>
+    <div class="form-group" style="margin-bottom:0">
+      <label>Anthropic API Key</label>
+      <div style="position:relative">
+        <input type="password" id="api-key" placeholder="sk-ant-api03-..." style="padding-right:90px" />
+        <button onclick="toggleApiVis()" id="btn-vis" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--muted);font-size:12px;padding:4px 10px;cursor:pointer;font-family:'DM Sans',sans-serif;">Lihat</button>
+      </div>
+      <p style="margin-top:8px;font-size:12px;color:var(--muted);">🔒 Key hanya tersimpan di browser kamu. Dapatkan di <a href="https://console.anthropic.com" target="_blank" style="color:var(--accent)">console.anthropic.com</a></p>
+    </div>
+    <div style="margin-top:12px;display:flex;gap:8px">
+      <button onclick="saveApiKey()" style="flex:1;padding:10px;background:linear-gradient(135deg,var(--accent),#a855f7);border:none;border-radius:10px;color:white;font-family:'Syne',sans-serif;font-weight:700;font-size:14px;cursor:pointer;">Simpan Key</button>
+      <button onclick="clearApiKey()" style="padding:10px 16px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:14px;cursor:pointer;">Hapus</button>
+    </div>
+    <div id="key-status" style="display:none;margin-top:10px;font-size:13px;padding:8px 12px;border-radius:8px;"></div>
+  </div>
+
+  <div class="card">
+    <div class="section-label">Topik & Konten</div>
+
+    <div class="form-group">
+      <label>Topik / Judul Utas</label>
+      <input type="text" id="topic" placeholder="Contoh: 5 niche Shopee Affiliate paling gurih 2025" />
+    </div>
+
+    <div class="form-group">
+      <label>Konteks Tambahan (opsional)</label>
+      <textarea id="context" placeholder="Poin-poin yang ingin dibahas, data, atau info tambahan..."></textarea>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group" style="margin-bottom:0">
+        <label>Jumlah Thread</label>
+        <select id="count">
+          <option value="1">1 thread</option>
+          <option value="2">2 thread</option>
+          <option value="3">3 thread</option>
+          <option value="5" selected>5 thread</option>
+          <option value="7">7 thread</option>
+        </select>
+      </div>
+      <div class="form-group" style="margin-bottom:0">
+        <label>Bahasa</label>
+        <select id="lang">
+          <option value="Indonesia" selected>🇮🇩 Indonesia</option>
+          <option value="English">🇺🇸 English</option>
+          <option value="Inggris campur gaul">🔥 Campur Gaul</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="section-label" style="margin-top:24px">Gaya Penulisan</div>
+
+    <div class="form-group">
+      <label>Tone</label>
+      <div class="pill-group" id="tone-group">
+        <div class="pill active" data-val="santai dan relatable">😎 Santai</div>
+        <div class="pill" data-val="informatif dan edukatif">📚 Edukatif</div>
+        <div class="pill" data-val="hype dan excited">🔥 Hype</div>
+        <div class="pill" data-val="serius dan profesional">💼 Pro</div>
+        <div class="pill" data-val="storytelling dan personal">💬 Story</div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Format Pembuka Hook</label>
+      <div class="pill-group" id="hook-group">
+        <div class="pill active" data-val="pertanyaan provokatif">❓ Pertanyaan</div>
+        <div class="pill" data-val="pernyataan mengejutkan">💥 Shocking</div>
+        <div class="pill" data-val="data/angka menarik">📊 Data</div>
+        <div class="pill" data-val="kisah personal">🙋 Kisah</div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Elemen Tambahan</label>
+      <div class="pill-group" id="extra-group">
+        <div class="pill active" data-val="emoji">✨ Emoji</div>
+        <div class="pill active" data-val="CTA di akhir">📣 CTA Akhir</div>
+        <div class="pill" data-val="nomor di tiap thread">🔢 Nomor</div>
+        <div class="pill" data-val="hashtag relevan">🏷️ Hashtag</div>
+        <div class="pill" data-val="penekanan dengan KAPITAL">‼️ Caps</div>
+      </div>
+    </div>
+
+    <button class="btn-generate" id="btn-gen">
+      <span class="btn-text">✦ Generate Utas Sekarang</span>
+      <div class="spinner"></div>
+    </button>
+
+    <div id="error-msg" class="error-msg" style="display:none"></div>
+  </div>
+
+  <div id="output-area">
+    <div class="output-header">
+      <div class="output-title">✦ Hasil Utas</div>
+      <button class="btn-copy-all" id="btn-copy-all">Copy Semua</button>
+    </div>
+    <div class="thread-list" id="thread-list"></div>
+  </div>
+</div>
+
+<script>
+  // Pill toggle logic
+  function setupPills(groupId, multiSelect = true) {
+    const group = document.getElementById(groupId);
+    group.querySelectorAll('.pill').forEach(pill => {
+      pill.addEventListener('click', () => {
+        if (multiSelect) {
+          pill.classList.toggle('active');
+        } else {
+          group.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+          pill.classList.add('active');
+        }
+      });
+    });
+  }
+
+  setupPills('tone-group', false);
+  setupPills('hook-group', false);
+  setupPills('extra-group', true);
+
+  function getSelected(groupId) {
+    return [...document.querySelectorAll(`#${groupId} .pill.active`)]
+      .map(p => p.dataset.val);
+  }
+
+  document.getElementById('btn-gen').addEventListener('click', generateThreads);
+
+  async function generateThreads() {
+    const topic = document.getElementById('topic').value.trim();
+    if (!getApiKey()) {
+      showError('API key belum diisi! Isi dulu di bagian atas.');
+      document.getElementById('api-key').focus();
+      return;
+    }
+    if (!topic) {
+      showError('Topik tidak boleh kosong!');
+      return;
+    }
+
+    const btn = document.getElementById('btn-gen');
+    const errDiv = document.getElementById('error-msg');
+    errDiv.style.display = 'none';
+    btn.classList.add('loading');
+    btn.disabled = true;
+
+    const count = document.getElementById('count').value;
+    const lang = document.getElementById('lang').value;
+    const context = document.getElementById('context').value.trim();
+    const tone = getSelected('tone-group')[0] || 'santai dan relatable';
+    const hook = getSelected('hook-group')[0] || 'pertanyaan provokatif';
+    const extras = getSelected('extra-group');
+
+    const extraText = extras.length ? `Gunakan elemen: ${extras.join(', ')}.` : '';
+
+    const prompt = `Kamu adalah copywriter viral media sosial spesialis platform Threads (Meta).
+
+Buat utas Threads sebanyak ${count} post dalam bahasa ${lang} tentang: "${topic}"
+${context ? `\nKonteks/info tambahan: ${context}` : ''}
+
+Aturan:
+- Tone: ${tone}
+- Pembuka (post 1) pakai hook: ${hook}
+- ${extraText}
+- Setiap post MAKSIMAL 500 karakter
+- Post pertama harus langsung menarik perhatian
+- Alur yang mengalir dan membangun penasaran
+- Post terakhir berupa kesimpulan atau CTA
+
+Balas HANYA dalam format JSON seperti ini (tanpa backtick, tanpa komentar):
+{"threads":[{"num":1,"text":"..."},{"num":2,"text":"..."}]}`;
+
+    try {
+      const res = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-api-key': getApiKey() },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 1000,
+          system: 'Kamu adalah copywriter viral. Balas HANYA dengan JSON valid, tanpa teks lain sama sekali.',
+          messages: [{ role: 'user', content: prompt }]
+        })
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error?.message || 'API error');
+
+      const raw = data.content.map(c => c.text || '').join('');
+      const clean = raw.replace(/```json|```/g, '').trim();
+      const parsed = JSON.parse(clean);
+
+      renderThreads(parsed.threads);
+    } catch (err) {
+      showError('Gagal generate: ' + err.message);
+    } finally {
+      btn.classList.remove('loading');
+      btn.disabled = false;
+    }
+  }
+
+  function renderThreads(threads) {
+    const area = document.getElementById('output-area');
+    const list = document.getElementById('thread-list');
+    list.innerHTML = '';
+
+    threads.forEach((t, i) => {
+      const len = t.text.length;
+      const countClass = len > 500 ? 'over' : len > 400 ? 'warn' : '';
+
+      const item = document.createElement('div');
+      item.className = 'thread-item';
+      item.style.animationDelay = `${i * 0.05}s`;
+      item.innerHTML = `
+        <div class="thread-num">Thread ${t.num}</div>
+        <div class="thread-text">${escHtml(t.text)}</div>
+        <div class="thread-footer">
+          <span class="char-count ${countClass}">${len}/500 karakter</span>
+          <button class="btn-copy" onclick="copyThread(this, ${JSON.stringify(t.text)})">Copy</button>
+        </div>`;
+      list.appendChild(item);
+    });
+
+    area.style.display = 'block';
+    area.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+    // Copy all button
+    document.getElementById('btn-copy-all').onclick = () => {
+      const all = threads.map((t, i) => `[${i+1}/${threads.length}]\n${t.text}`).join('\n\n');
+      navigator.clipboard.writeText(all).then(() => {
+        const btn = document.getElementById('btn-copy-all');
+        btn.textContent = '✓ Tersalin!';
+        setTimeout(() => btn.textContent = 'Copy Semua', 2000);
+      });
+    };
+  }
+
+  function copyThread(btn, text) {
+    navigator.clipboard.writeText(text).then(() => {
+      btn.textContent = '✓ Copied';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+    });
+  }
+
+  function showError(msg) {
+    const el = document.getElementById('error-msg');
+    el.textContent = msg;
+    el.style.display = 'block';
+  }
+
+  function escHtml(str) {
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  // API Key management
+  function getApiKey() {
+    return localStorage.getItem('anthropic_api_key') || document.getElementById('api-key').value.trim();
+  }
+
+  function saveApiKey() {
+    const key = document.getElementById('api-key').value.trim();
+    if (!key.startsWith('sk-ant-')) {
+      showKeyStatus('Format key tidak valid. Harus dimulai dengan sk-ant-', false);
+      return;
+    }
+    localStorage.setItem('anthropic_api_key', key);
+    showKeyStatus('✓ API key berhasil disimpan!', true);
+  }
+
+  function clearApiKey() {
+    localStorage.removeItem('anthropic_api_key');
+    document.getElementById('api-key').value = '';
+    showKeyStatus('Key dihapus dari browser.', false);
+  }
+
+  function toggleApiVis() {
+    const input = document.getElementById('api-key');
+    const btn = document.getElementById('btn-vis');
+    if (input.type === 'password') {
+      input.type = 'text';
+      btn.textContent = 'Sembunyikan';
+    } else {
+      input.type = 'password';
+      btn.textContent = 'Lihat';
+    }
+  }
+
+  function showKeyStatus(msg, success) {
+    const el = document.getElementById('key-status');
+    el.style.display = 'block';
+    el.style.background = success ? 'rgba(92,252,160,0.1)' : 'rgba(248,113,113,0.1)';
+    el.style.border = success ? '1px solid rgba(92,252,160,0.3)' : '1px solid rgba(248,113,113,0.3)';
+    el.style.color = success ? 'var(--success)' : '#f87171';
+    el.textContent = msg;
+  }
+
+  // Load saved key on startup
+  window.addEventListener('DOMContentLoaded', () => {
+    const saved = localStorage.getItem('anthropic_api_key');
+    if (saved) {
+      document.getElementById('api-key').value = saved;
+      showKeyStatus('✓ API key tersimpan & siap digunakan', true);
+    }
+  });
+
+  // PWA Install
+  let deferredPrompt;
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    const banner = document.getElementById('install-banner');
+    if (banner) banner.style.display = 'flex';
+  });
+
+  const btnInstall = document.getElementById('btn-install');
+  if (btnInstall) {
+    btnInstall.addEventListener('click', async () => {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        deferredPrompt = null;
+        document.getElementById('install-banner').style.display = 'none';
+      } else {
+        // iOS fallback
+        alert('Di iPhone/iPad:\n1. Tap ikon Share (kotak panah atas)\n2. Pilih "Add to Home Screen"\n3. Tap "Add"\n\nTool akan muncul seperti aplikasi di layar utama!');
+      }
+    });
+  }
+
+  // Share functions
+  function shareWA() {
+    const url = window.location.href.includes('github.io') ? window.location.href : 'Upload ke GitHub Pages dulu ya!';
+    const msg = encodeURIComponent('Coba tool AI buat bikin utas Threads otomatis ini! 🔥\n\n' + url);
+    window.open('https://wa.me/?text=' + msg, '_blank');
+  }
+
+  function copyLink() {
+    const url = window.location.href;
+    navigator.clipboard.writeText(url).then(() => {
+      const btn = document.getElementById('btn-copy-link');
+      btn.textContent = '✓ Tersalin!';
+      setTimeout(() => btn.textContent = '🔗 Copy Link', 2000);
+    });
+  }
+
+  // Set share URL display
+  window.addEventListener('load', () => {
+    const urlEl = document.getElementById('share-url');
+    if (urlEl && window.location.href.includes('github.io')) {
+      urlEl.textContent = window.location.href;
+    }
+  });
+
+  // Service Worker for offline
+  if ('serviceWorker' in navigator) {
+    const swCode = `
+      self.addEventListener('install', e => self.skipWaiting());
+      self.addEventListener('fetch', e => e.respondWith(fetch(e.request).catch(() => caches.match(e.request))));
+    `;
+    const blob = new Blob([swCode], {type: 'application/javascript'});
+    navigator.serviceWorker.register(URL.createObjectURL(blob));
+  }
+
+</script>
+
+  <!-- Install Banner -->
+  <div id="install-banner" style="display:none;position:fixed;bottom:20px;left:50%;transform:translateX(-50%);width:calc(100% - 40px);max-width:740px;background:linear-gradient(135deg,#1c1c28,#13131a);border:1px solid rgba(124,92,252,0.4);border-radius:16px;padding:16px 20px;z-index:999;box-shadow:0 8px 32px rgba(0,0,0,0.5);display:flex;align-items:center;gap:12px;animation:fadeUp 0.4s ease both">
+    <div style="flex:1">
+      <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:14px;color:#e8e8f0">📲 Install sebagai Aplikasi</div>
+      <div style="font-size:12px;color:#6b6b8a;margin-top:2px">Tambah ke layar utama HP kamu</div>
+    </div>
+    <button id="btn-install" style="padding:8px 16px;background:linear-gradient(135deg,#7c5cfc,#fc5ca0);border:none;border-radius:10px;color:white;font-family:'Syne',sans-serif;font-weight:700;font-size:13px;cursor:pointer;white-space:nowrap">Install</button>
+    <button onclick="document.getElementById('install-banner').style.display='none'" style="padding:8px;background:transparent;border:none;color:#6b6b8a;cursor:pointer;font-size:18px;line-height:1">×</button>
+  </div>
+
+  <!-- Share Card -->
+  <div style="max-width:780px;margin:0 auto 40px;padding:0 20px;position:relative;z-index:1">
+    <div style="background:#13131a;border:1px solid #2a2a3d;border-radius:20px;padding:24px;text-align:center">
+      <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:16px;margin-bottom:8px">📤 Bagikan ke Teman</div>
+      <div style="font-size:13px;color:#6b6b8a;margin-bottom:16px">Biar teman kamu bisa pakai tool ini juga</div>
+      <div style="background:#1c1c28;border:1px solid #2a2a3d;border-radius:10px;padding:10px 14px;font-size:13px;color:#a0a0b8;margin-bottom:12px;word-break:break-all" id="share-url">Upload ke GitHub Pages dulu untuk dapat link 🔗</div>
+      <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
+        <button onclick="shareWA()" style="padding:10px 20px;background:#25D366;border:none;border-radius:10px;color:white;font-family:'Syne',sans-serif;font-weight:700;font-size:13px;cursor:pointer">💬 Share WhatsApp</button>
+        <button onclick="copyLink()" style="padding:10px 20px;background:#1c1c28;border:1px solid #2a2a3d;border-radius:10px;color:#e8e8f0;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer" id="btn-copy-link">🔗 Copy Link</button>
+      </div>
+      <div style="margin-top:16px;padding:12px;background:rgba(124,92,252,0.08);border:1px solid rgba(124,92,252,0.2);border-radius:10px;font-size:12px;color:#a0a0b8;text-align:left">
+        <strong style="color:#c4b5fd">📌 Cara dapat link permanen:</strong><br>
+        1. Buka <a href="https://github.com" target="_blank" style="color:#7c5cfc">github.com</a> → daftar gratis<br>
+        2. Buat repo baru → upload file ini sebagai <strong>index.html</strong><br>
+        3. Settings → Pages → pilih branch main → Save<br>
+        4. Dapat link: <strong>namakamu.github.io/nama-repo</strong>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
