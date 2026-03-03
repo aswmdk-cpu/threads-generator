@@ -580,10 +580,29 @@ ${prompt}`
       
       // OpenRouter returns choices format
       let raw = data.choices?.[0]?.message?.content || '';
+      // Remove markdown
       raw = raw.replace(/```json|```/g, '').trim();
-      const jsonMatch = raw.match(/\{[\s\S]*\}/);
-      if (!jsonMatch) throw new Error('Format respon tidak valid, coba lagi');
-      const parsed = JSON.parse(jsonMatch[0]);
+      
+      let parsed;
+      try {
+        // Try direct parse first
+        parsed = JSON.parse(raw);
+      } catch(e1) {
+        try {
+          // Try extracting JSON object
+          const jsonMatch = raw.match(/\{[\s\S]*\}/);
+          if (jsonMatch) parsed = JSON.parse(jsonMatch[0]);
+        } catch(e2) {
+          // Fallback: build threads from numbered lines
+          const lines = raw.split(/\n+/).filter(l => l.trim());
+          const threads = lines
+            .filter(l => l.trim().length > 10)
+            .slice(0, parseInt(document.getElementById('count').value))
+            .map((t, i) => ({ num: i+1, text: t.replace(/^\d+[\.\)]\s*/, '').trim() }));
+          if (threads.length === 0) throw new Error('Gagal memproses respon AI, coba lagi');
+          parsed = { threads };
+        }
+      }
 
       renderThreads(parsed.threads);
     } catch (err) {
