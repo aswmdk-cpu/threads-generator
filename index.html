@@ -475,8 +475,6 @@
         <option value="anthropic/claude-haiku-4-5" selected>⚡ Claude Haiku (Recommended)</option>
         <option value="openai/gpt-4o-mini">🤖 GPT-4o Mini (Alternatif)</option>
         <option value="google/gemini-2.0-flash-001">✨ Gemini 2.0 Flash (Alternatif)</option>
-        <option value="qwen/qwen-2.5-7b-instruct:free">🆓 Qwen 2.5 (Gratis)</option>
-        <option value="google/gemini-2.0-flash-lite-001">🆓 Gemini Flash Lite (Gratis)</option>
       </select>
       <p style="margin-top:6px;font-size:11px;color:var(--muted)">💡 Kalau satu model error, coba ganti ke model lain</p>
     </div>
@@ -646,33 +644,60 @@ ${prompt}`
       
       // OpenRouter returns choices format
       let raw = data.choices?.[0]?.message?.content || '';
-      // Remove markdown fences
-      raw = raw.replace(/```json|```/g, '').trim();
-
       const count = parseInt(document.getElementById('count').value);
       let parsed;
 
-      // Helper: try to extract clean JSON
-      function tryParseJSON(str) {
-        // Find first { and last }
-        const start = str.indexOf('{');
-        const end = str.lastIndexOf('}');
-        if (start === -1 || end === -1) return null;
-        try { return JSON.parse(str.slice(start, end + 1)); } catch(e) { return null; }
+      // Clean markdown fences
+      raw = raw.replace(/```json|```/g, '').trim();
+
+      // Step 1: Try direct JSON parse
+      try { parsed = JSON.parse(raw); } catch(e) {}
+
+      // Step 2: Extract JSON object from text (handles raw JSON in string)
+      if (!parsed || !Array.isArray(parsed.threads)) {
+        try {
+          const start = raw.indexOf('{"threads"');
+          const end = raw.lastIndexOf('}') + 1;
+          if (start >= 0 && end > start) {
+            parsed = JSON.parse(raw.slice(start, end));
+          }
+        } catch(e) {}
       }
 
-      parsed = tryParseJSON(raw);
-
-      // If still null or threads not array, build from plain text
+      // Step 3: Parse escaped JSON string (e.g. Gemini wraps in quotes)
       if (!parsed || !Array.isArray(parsed.threads)) {
-        // Split by double newline or numbered pattern
-        const blocks = raw.split(/\n{2,}|(?=\[Thread \d+\])|(?=\d+\/\d+)/).filter(b => b.trim().length > 5);
+        try {
+          // Sometimes model returns JSON as escaped string inside a string
+          const unescaped = raw.replace(/\\"/g, '"').replace(/^"|"$/g, '');
+          const start = unescaped.indexOf('{"threads"');
+          const end = unescaped.lastIndexOf('}') + 1;
+          if (start >= 0) parsed = JSON.parse(unescaped.slice(start, end));
+        } catch(e) {}
+      }
+
+      // Step 4: Extract individual thread texts from JSON-like string
+      if (!parsed || !Array.isArray(parsed.threads)) {
+        try {
+          const textMatches = [...raw.matchAll(/"text"\s*:\s*"((?:[^"\\]|\\.)*)"/g)];
+          if (textMatches.length > 0) {
+            const threads = textMatches.slice(0, count).map((m, i) => ({
+              num: i + 1,
+              text: m[1].replace(/\\n/g, '\n').replace(/\\"/g, '"')
+            }));
+            parsed = { threads };
+          }
+        } catch(e) {}
+      }
+
+      // Step 5: Fallback - split plain text into threads
+      if (!parsed || !Array.isArray(parsed.threads) || parsed.threads.length === 0) {
+        const blocks = raw.split(/\n{2,}/).filter(b => b.trim().length > 10);
         const threads = blocks
-          .map(b => b.replace(/^\[?Thread \d+\]?:?\s*/i, '').replace(/^\d+[\.\)]\s*/, '').trim())
-          .filter(b => b.length > 5)
+          .map(b => b.replace(/^\[?Thread \d+\]?:?\s*/i, '').replace(/^\d+[\.\)\:]\s*/, '').trim())
+          .filter(b => b.length > 10 && !b.startsWith('{'))
           .slice(0, count)
           .map((text, i) => ({ num: i + 1, text }));
-        if (threads.length === 0) throw new Error('Gagal memproses respon, coba lagi atau ganti model AI');
+        if (threads.length === 0) throw new Error('Gagal memproses respon AI. Coba ganti ke Claude Haiku.');
         parsed = { threads };
       }
 
