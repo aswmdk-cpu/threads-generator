@@ -550,9 +550,18 @@ Balas HANYA dalam format JSON seperti ini (tanpa backtick, tanpa komentar):
     try {
       const payload = {
         model: 'anthropic/claude-haiku-4-5',
-        max_tokens: 1000,
+        max_tokens: 2000,
         messages: [
-          { role: 'user', content: 'System: Kamu adalah copywriter viral. Balas HANYA dengan JSON valid, tanpa teks lain sama sekali.\n\n' + prompt }
+          { 
+            role: 'user', 
+            content: `INSTRUKSI PENTING: Balas HANYA dengan JSON murni. JANGAN tambahkan teks apapun sebelum atau sesudah JSON. JANGAN gunakan markdown atau backtick.
+
+Format JSON yang HARUS kamu ikuti persis:
+{"threads":[{"num":1,"text":"isi thread 1"},{"num":2,"text":"isi thread 2"}]}
+
+Sekarang buat konten berikut:
+${prompt}`
+          }
         ]
       };
       const headers = {
