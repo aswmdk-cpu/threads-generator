@@ -570,11 +570,11 @@ Balas HANYA dalam format JSON seperti ini (tanpa backtick, tanpa komentar):
       if (!res.ok) throw new Error(data.error?.message || 'API error');
       
       // OpenRouter returns choices format
-      const raw = data.choices?.[0]?.message?.content || '';
-
-      // raw already set above
-      const clean = raw.replace(/```json|```/g, '').trim();
-      const parsed = JSON.parse(clean);
+      let raw = data.choices?.[0]?.message?.content || '';
+      raw = raw.replace(/```json|```/g, '').trim();
+      const jsonMatch = raw.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) throw new Error('Format respon tidak valid, coba lagi');
+      const parsed = JSON.parse(jsonMatch[0]);
 
       renderThreads(parsed.threads);
     } catch (err) {
