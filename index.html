@@ -970,6 +970,93 @@ ${prompt}`
   }
 
 
+  // ===== EDIT MODE =====
+  function toggleEdit(btn, threadNum) {
+    const el = document.getElementById('thread-text-' + threadNum);
+    if (!el) return;
+    const isEditing = el.contentEditable === 'true';
+    if (isEditing) {
+      el.contentEditable = 'false';
+      btn.textContent = '✏️';
+      btn.classList.remove('editing');
+    } else {
+      el.contentEditable = 'true';
+      el.focus();
+      btn.textContent = '✅';
+      btn.classList.add('editing');
+      const range = document.createRange();
+      range.selectNodeContents(el);
+      range.collapse(false);
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+    }
+  }
+
+  // ===== TEMPLATE TOPIK =====
+  function setTopic(text) {
+    const el = document.getElementById('topic');
+    el.value = text;
+    el.focus();
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  // ===== HISTORY =====
+  function saveHistory(topic, threads) {
+    try {
+      const history = JSON.parse(localStorage.getItem('threads_history') || '[]');
+      history.unshift({ id: Date.now(), topic, threads, date: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) });
+      localStorage.setItem('threads_history', JSON.stringify(history.slice(0, 10)));
+      renderHistory();
+    } catch(e) {}
+  }
+
+  function renderHistory() {
+    const history = JSON.parse(localStorage.getItem('threads_history') || '[]');
+    const area = document.getElementById('history-area');
+    const list = document.getElementById('history-list');
+    if (!area || !list) return;
+    if (history.length === 0) { area.style.display = 'none'; return; }
+    area.style.display = 'block';
+    list.innerHTML = '';
+    history.forEach(h => {
+      const card = document.createElement('div');
+      card.className = 'history-card';
+      card.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:start"><div><div class="history-title">' + escHtml(h.topic) + '</div><div class="history-meta">' + h.date + ' · ' + h.threads.length + ' thread</div></div><div style="display:flex;gap:6px"><button class="btn-copy" style="font-size:11px;padding:4px 10px" onclick="loadHistory(' + h.id + ')">Muat</button><button class="btn-copy" style="font-size:11px;padding:4px 10px" onclick="deleteHistory(' + h.id + ')">🗑️</button></div></div>';
+      list.appendChild(card);
+    });
+  }
+
+  function loadHistory(id) {
+    const history = JSON.parse(localStorage.getItem('threads_history') || '[]');
+    const item = history.find(h => h.id === id);
+    if (!item) return;
+    document.getElementById('topic').value = item.topic;
+    renderThreads(item.threads);
+  }
+
+  function deleteHistory(id) {
+    let history = JSON.parse(localStorage.getItem('threads_history') || '[]');
+    history = history.filter(h => h.id !== id);
+    localStorage.setItem('threads_history', JSON.stringify(history));
+    renderHistory();
+  }
+
+  function clearAllHistory() {
+    localStorage.removeItem('threads_history');
+    renderHistory();
+  }
+
+  window.addEventListener('DOMContentLoaded', () => {
+    const saved = localStorage.getItem('anthropic_api_key');
+    if (saved) {
+      document.getElementById('api-key').value = saved;
+      showKeyStatus('✓ API key tersimpan & siap digunakan', true);
+    }
+    renderHistory();
+  });
+
+
   // PWA Install
   let deferredPrompt;
   window.addEventListener('beforeinstallprompt', (e) => {
