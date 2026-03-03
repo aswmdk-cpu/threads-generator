@@ -548,16 +548,30 @@ Balas HANYA dalam format JSON seperti ini (tanpa backtick, tanpa komentar):
 {"threads":[{"num":1,"text":"..."},{"num":2,"text":"..."}]}`;
 
     try {
-      const res = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-api-key': getApiKey() },
-        body: JSON.stringify({
-          model: 'claude-sonnet-4-20250514',
-          max_tokens: 1000,
-          system: 'Kamu adalah copywriter viral. Balas HANYA dengan JSON valid, tanpa teks lain sama sekali.',
-          messages: [{ role: 'user', content: prompt }]
-        })
-      });
+      const payload = {
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: 'Kamu adalah copywriter viral. Balas HANYA dengan JSON valid, tanpa teks lain sama sekali.',
+        messages: [{ role: 'user', content: prompt }]
+      };
+      const headers = {
+        'Content-Type': 'application/json',
+        'x-api-key': getApiKey(),
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      };
+
+      let res;
+      try {
+        res = await fetch('https://api.anthropic.com/v1/messages', {
+          method: 'POST', headers, body: JSON.stringify(payload)
+        });
+      } catch(e) {
+        const proxy = 'https://corsproxy.io/?' + encodeURIComponent('https://api.anthropic.com/v1/messages');
+        const h2 = {...headers};
+        delete h2['anthropic-dangerous-direct-browser-access'];
+        res = await fetch(proxy, { method: 'POST', headers: h2, body: JSON.stringify(payload) });
+      }
 
       const data = await res.json();
       if (!res.ok) throw new Error(data.error?.message || 'API error');
