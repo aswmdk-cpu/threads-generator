@@ -645,28 +645,34 @@ ${prompt}`
       
       // OpenRouter returns choices format
       let raw = data.choices?.[0]?.message?.content || '';
-      // Remove markdown
+      // Remove markdown fences
       raw = raw.replace(/```json|```/g, '').trim();
-      
+
+      const count = parseInt(document.getElementById('count').value);
       let parsed;
-      try {
-        // Try direct parse first
-        parsed = JSON.parse(raw);
-      } catch(e1) {
-        try {
-          // Try extracting JSON object
-          const jsonMatch = raw.match(/\{[\s\S]*\}/);
-          if (jsonMatch) parsed = JSON.parse(jsonMatch[0]);
-        } catch(e2) {
-          // Fallback: build threads from numbered lines
-          const lines = raw.split(/\n+/).filter(l => l.trim());
-          const threads = lines
-            .filter(l => l.trim().length > 10)
-            .slice(0, parseInt(document.getElementById('count').value))
-            .map((t, i) => ({ num: i+1, text: t.replace(/^\d+[\.\)]\s*/, '').trim() }));
-          if (threads.length === 0) throw new Error('Gagal memproses respon AI, coba lagi');
-          parsed = { threads };
-        }
+
+      // Helper: try to extract clean JSON
+      function tryParseJSON(str) {
+        // Find first { and last }
+        const start = str.indexOf('{');
+        const end = str.lastIndexOf('}');
+        if (start === -1 || end === -1) return null;
+        try { return JSON.parse(str.slice(start, end + 1)); } catch(e) { return null; }
+      }
+
+      parsed = tryParseJSON(raw);
+
+      // If still null or threads not array, build from plain text
+      if (!parsed || !Array.isArray(parsed.threads)) {
+        // Split by double newline or numbered pattern
+        const blocks = raw.split(/\n{2,}|(?=\[Thread \d+\])|(?=\d+\/\d+)/).filter(b => b.trim().length > 5);
+        const threads = blocks
+          .map(b => b.replace(/^\[?Thread \d+\]?:?\s*/i, '').replace(/^\d+[\.\)]\s*/, '').trim())
+          .filter(b => b.length > 5)
+          .slice(0, count)
+          .map((text, i) => ({ num: i + 1, text }));
+        if (threads.length === 0) throw new Error('Gagal memproses respon, coba lagi atau ganti model AI');
+        parsed = { threads };
       }
 
       renderThreads(parsed.threads);
