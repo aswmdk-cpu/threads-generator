@@ -731,6 +731,7 @@ ATURAN:
 - Tiap post MAX 500 karakter, singkat & to the point
 - Kalimat pendek, tidak bertele-tele
 - DILARANG: "beli sekarang", "promo", "klik link", "order segera"
+- DILARANG pakai markdown: jangan pakai *bold*, _italic_, atau simbol format apapun
 ${shopeeLink ? `- Sisipkan ${shopeeLink} di post terakhir secara natural` : '- Arahkan ke "link di bio" atau "link di komen"'}`;
 
     try {
@@ -746,7 +747,7 @@ OUTPUT: JSON saja, tanpa teks lain.
 
       const payload = {
         contents: [{ parts: [{ text: fullPrompt }] }],
-        generationConfig: { maxOutputTokens: 2048, temperature: 0.8, responseMimeType: 'application/json' }
+        generationConfig: { maxOutputTokens: 4096, temperature: 0.8, responseMimeType: 'application/json' }
       };
       const res = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
@@ -891,7 +892,16 @@ OUTPUT: JSON saja, tanpa teks lain.
       list.appendChild(item);
       // Set text safely without escaping issues
       const textEl = document.getElementById('thread-text-' + t.num);
-      if (textEl) textEl.textContent = t.text;
+      if (textEl) {
+        // Strip markdown bold/italic that Gemini sometimes adds
+        const cleanText = t.text
+          .replace(/\*\*(.*?)\*\*/g, '$1')
+          .replace(/\*(.*?)\*/g, '$1')
+          .replace(/__(.*?)__/g, '$1')
+          .replace(/_(.*?)_/g, '$1')
+          .trim();
+        textEl.textContent = cleanText;
+      }
     });
 
     area.style.display = 'block';
@@ -957,14 +967,21 @@ Balas HANYA teks post-nya saja, tanpa penjelasan apapun.`;
 
       const regenPayload = {
         contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: { maxOutputTokens: 1024, temperature: 0.9 }
+        generationConfig: { maxOutputTokens: 2048, temperature: 0.85, stopSequences: [] }
       };
       const res = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${getApiKey()}`,
         { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(regenPayload) }
       );
       const data = await res.json();
-      const newText = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '';
+      if (!res.ok) throw new Error(data.error?.message || 'Gemini error');
+      let newText = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+      // Clean up - remove quotes, backticks, numbering AI sometimes adds
+      newText = newText.trim()
+        .replace(/^["'`]|["'`]$/g, '')
+        .replace(/^Thread \d+[:\s]*/i, '')
+        .replace(/^\d+[.):]\s*/, '')
+        .trim();
       if (newText) {
         el.textContent = newText;
         const newLen = newText.length;
