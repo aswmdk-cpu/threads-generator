@@ -727,18 +727,11 @@ Balas HANYA dalam format JSON (tanpa backtick, tanpa komentar apapun):
     try {
       const model = document.getElementById('ai-model').value;
 
-      const fullPrompt = `BALAS HANYA DENGAN JSON. TIDAK ADA TEKS LAIN. TIDAK ADA MARKDOWN. TIDAK ADA BACKTICK.
+      const fullPrompt = `Buat konten sesuai instruksi berikut dan kembalikan dalam format JSON:
+{"threads":[{"num":1,"text":"..."},{"num":2,"text":"..."}]}
 
-OUTPUT HARUS PERSIS SEPERTI INI (ganti isi saja, struktur jangan diubah):
-{"threads":[{"num":1,"text":"teks thread 1 di sini"},{"num":2,"text":"teks thread 2 di sini"}]}
+Setiap "text" maksimal 500 karakter, tidak boleh mengandung newline.
 
-ATURAN JSON:
-- Gunakan tanda kutip ganda untuk semua string
-- Jangan ada koma di akhir array terakhir
-- Jangan ada newline di dalam nilai "text", gunakan spasi saja
-- Setiap "text" maksimal 500 karakter
-
-KONTEN YANG DIBUAT:
 ${prompt}`;
 
       const geminiKey = getApiKey();
@@ -746,7 +739,11 @@ ${prompt}`;
 
       const payload = {
         contents: [{ parts: [{ text: fullPrompt }] }],
-        generationConfig: { maxOutputTokens: 2048, temperature: 0.8 }
+        generationConfig: {
+          maxOutputTokens: 2048,
+          temperature: 0.8,
+          responseMimeType: 'application/json'
+        }
       };
 
       // Auto ganti model kalau rate limit
@@ -843,7 +840,25 @@ ${prompt}`;
       renderThreads(parsed.threads);
       saveHistory(document.getElementById('topic').value.trim(), parsed.threads);
     } catch (err) {
-      showError('Gagal generate: ' + err.message);
+      // Translate error to friendly Indonesian
+      let errMsg = err.message || '';
+      let friendlyMsg = '';
+      if (errMsg.toLowerCase().includes('quota') || errMsg.toLowerCase().includes('rate') || err.message.includes('429')) {
+        const retryMatch = errMsg.match(/retry in ([0-9.]+)s/i);
+        const waitSec = retryMatch ? Math.ceil(parseFloat(retryMatch[1])) : 30;
+        friendlyMsg = `⏳ Sedang ramai digunakan. Tunggu ${waitSec} detik lalu coba generate lagi ya!`;
+      } else if (errMsg.toLowerCase().includes('api key') || errMsg.toLowerCase().includes('invalid') || errMsg.includes('401') || errMsg.includes('403')) {
+        friendlyMsg = '🔑 API key tidak valid. Cek kembali API key Gemini kamu di bagian atas.';
+      } else if (errMsg.toLowerCase().includes('not found') || errMsg.toLowerCase().includes('404')) {
+        friendlyMsg = '🔄 Model tidak tersedia. Coba ganti ke model lain di dropdown Model AI.';
+      } else if (errMsg.toLowerCase().includes('network') || errMsg.toLowerCase().includes('fetch') || errMsg.toLowerCase().includes('failed to fetch')) {
+        friendlyMsg = '📶 Koneksi bermasalah. Cek internet kamu lalu coba lagi.';
+      } else if (errMsg.includes('Gagal memproses') || errMsg.includes('Gagal setelah')) {
+        friendlyMsg = '🔄 AI tidak bisa memproses. Coba generate ulang atau ganti model lain.';
+      } else {
+        friendlyMsg = '⚠️ Gagal generate. Coba lagi atau ganti model AI lain.';
+      }
+      showError(friendlyMsg);
     } finally {
       btn.classList.remove('loading');
       btn.disabled = false;
