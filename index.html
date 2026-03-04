@@ -981,20 +981,19 @@ OUTPUT: JSON saja, tanpa teks lain.
   function getApiKey() { return localStorage.getItem('gemini_api_key') || ''; }
 
   function saveApiKey() {
-    const key = document.getElementById('api-key').value.trim();
-    if (!key.startsWith('sk-or-')) {
-      showKeyStatus('Format key tidak valid. Harus dimulai dengan sk-or-', false);
+    const key = document.getElementById('api-key-free').value.trim();
+    if (!key.startsWith('AIza')) {
+      showKeyStatus('Format key tidak valid. Harus dimulai dengan AIza', false);
       return;
     }
-    localStorage.setItem('anthropic_api_key', key);
-    showKeyStatus('✓ API key berhasil disimpan!', true);
+    localStorage.setItem('gemini_api_key', key);
+    showKeyStatus('✓ API key tersimpan & siap digunakan!', true);
   }
 
   function clearApiKey() {
-    localStorage.removeItem('anthropic_api_key');
-    if (document.getElementById('api-key-free')) document.getElementById('api-key-free').value = '';
-    if (document.getElementById('api-key-pro')) document.getElementById('api-key-pro').value = '';
-    showKeyStatus('Key dihapus dari browser.', false);
+    localStorage.removeItem('gemini_api_key');
+    document.getElementById('api-key-free').value = '';
+    showKeyStatus('Key dihapus', false);
   }
 
 
