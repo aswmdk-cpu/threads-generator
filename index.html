@@ -2,14 +2,14 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="theme-color" content="#7c5cfc">
+<meta name="theme-color" content="#16a34a">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Threads Gen">
+<meta name="apple-mobile-web-app-title" content="Affiliate Gen">
 <link rel="manifest" href="data:application/json,{
-  %22name%22:%22Threads%20Utas%20Generator%22,
-  %22short_name%22:%22Threads%20Gen%22,
+  %22name%22:%22Threads%20Affiliate%20Generator%22,
+  %22short_name%22:%22Affiliate%20Gen%22,
   %22start_url%22:%22.%22,
   %22display%22:%22standalone%22,
   %22background_color%22:%22%230a0a0f%22,
@@ -17,7 +17,7 @@
   %22icons%22:[{%22src%22:%22https://api.dicebear.com/7.x/shapes/svg?seed=threads%22,%22sizes%22:%22192x192%22,%22type%22:%22image/svg+xml%22}]
 }">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Threads Utas Generator</title>
+<title>Threads Affiliate Generator</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -27,11 +27,11 @@
     --surface: #13131a;
     --surface2: #1c1c28;
     --border: #2a2a3d;
-    --accent: #7c5cfc;
-    --accent2: #fc5ca0;
+    --accent: #16a34a;
+    --accent2: #ca8a04;
     --text: #e8e8f0;
     --muted: #6b6b8a;
-    --success: #5cfca0;
+    --success: #4ade80;
   }
 
   body {
@@ -48,8 +48,8 @@
     position: fixed;
     inset: 0;
     background: 
-      radial-gradient(ellipse 60% 50% at 20% 20%, rgba(124,92,252,0.12) 0%, transparent 60%),
-      radial-gradient(ellipse 50% 60% at 80% 80%, rgba(252,92,160,0.10) 0%, transparent 60%);
+      radial-gradient(ellipse 60% 50% at 20% 20%, rgba(22,163,74,0.12) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 60% at 80% 80%, rgba(202,138,4,0.10) 0%, transparent 60%);
     pointer-events: none;
     z-index: 0;
   }
@@ -73,8 +73,8 @@
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    background: linear-gradient(135deg, rgba(124,92,252,0.2), rgba(252,92,160,0.15));
-    border: 1px solid rgba(124,92,252,0.3);
+    background: linear-gradient(135deg, rgba(22,163,74,0.2), rgba(202,138,4,0.15));
+    border: 1px solid rgba(22,163,74,0.3);
     border-radius: 100px;
     padding: 6px 16px;
     font-size: 13px;
@@ -89,7 +89,7 @@
     font-size: clamp(2rem, 5vw, 3rem);
     font-weight: 800;
     line-height: 1.1;
-    background: linear-gradient(135deg, #fff 0%, #c4b5fd 50%, #f9a8d4 100%);
+    background: linear-gradient(135deg, #fff 0%, #86efac 50%, #fde68a 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -151,7 +151,7 @@
 
   input:focus, textarea:focus, select:focus {
     border-color: var(--accent);
-    box-shadow: 0 0 0 3px rgba(124,92,252,0.15);
+    box-shadow: 0 0 0 3px rgba(22,163,74,0.15);
   }
 
   select option { background: #1c1c28; }
@@ -180,7 +180,7 @@
 
   .pill:hover { border-color: var(--accent); color: var(--text); }
   .pill.active {
-    background: linear-gradient(135deg, var(--accent), #a855f7);
+    background: linear-gradient(135deg, var(--accent), #15803d);
     border-color: transparent;
     color: #fff;
   }
@@ -207,7 +207,7 @@
   .btn-generate:hover:not(:disabled) {
     opacity: 0.92;
     transform: translateY(-1px);
-    box-shadow: 0 8px 30px rgba(124,92,252,0.4);
+    box-shadow: 0 8px 30px rgba(22,163,74,0.4);
   }
 
   .btn-generate:disabled {
@@ -320,7 +320,7 @@
     animation: fadeUp 0.4s ease both;
   }
 
-  .thread-item:hover { border-color: rgba(124,92,252,0.4); }
+  .thread-item:hover { border-color: rgba(22,163,74,0.4); }
 
   .thread-num {
     font-family: 'Syne', sans-serif;
@@ -411,7 +411,7 @@
     border-radius: 8px;
     padding: 8px;
     outline: none;
-    background: rgba(124,92,252,0.05);
+    background: rgba(22,163,74,0.05);
     cursor: text;
   }
 
@@ -428,7 +428,7 @@
     transition: border-color 0.2s;
   }
 
-  .history-card:hover { border-color: rgba(124,92,252,0.4); }
+  .history-card:hover { border-color: rgba(22,163,74,0.4); }
   .history-title { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
   .history-meta { font-size: 11px; color: var(--muted); }
 
@@ -446,7 +446,7 @@
     white-space: nowrap;
   }
 
-  .template-pill:hover { border-color: var(--accent); color: var(--text); background: rgba(124,92,252,0.1); }
+  .template-pill:hover { border-color: var(--accent); color: var(--text); background: rgba(22,163,74,0.1); }
 
   .template-scroll {
     display: flex;
@@ -483,7 +483,7 @@
       <p style="margin-top:8px;font-size:12px;color:var(--muted);">🔒 Key hanya tersimpan di browser kamu. Dapatkan di <a href="https://openrouter.ai/keys" target="_blank" style="color:var(--accent)">openrouter.ai/keys</a></p>
     </div>
     <div style="margin-top:12px;display:flex;gap:8px">
-      <button onclick="saveApiKey()" style="flex:1;padding:10px;background:linear-gradient(135deg,var(--accent),#a855f7);border:none;border-radius:10px;color:white;font-family:'Syne',sans-serif;font-weight:700;font-size:14px;cursor:pointer;">Simpan Key</button>
+      <button onclick="saveApiKey()" style="flex:1;padding:10px;background:linear-gradient(135deg,var(--accent),#15803d);border:none;border-radius:10px;color:white;font-family:'Syne',sans-serif;font-weight:700;font-size:14px;cursor:pointer;">Simpan Key</button>
       <button onclick="clearApiKey()" style="padding:10px 16px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:14px;cursor:pointer;">Hapus</button>
     </div>
     <div id="key-status" style="display:none;margin-top:10px;font-size:13px;padding:8px 12px;border-radius:8px;"></div>
@@ -495,16 +495,16 @@
     <div class="form-group">
       <label>⚡ Template Topik Populer</label>
       <div class="template-scroll">
-        <div class="template-pill" onclick="setTopic('5 produk Shopee yang lagi viral dan worth it dibeli')">🛍️ Shopee Viral</div>
-        <div class="template-pill" onclick="setTopic('Tips hemat belanja bulanan untuk ibu rumah tangga')">💰 Hemat Belanja</div>
-        <div class="template-pill" onclick="setTopic('Skincare routine pagi hari yang simpel dan efektif')">✨ Skincare</div>
-        <div class="template-pill" onclick="setTopic('Tips masak cepat untuk ibu sibuk di pagi hari')">🍳 Masak Cepat</div>
-        <div class="template-pill" onclick="setTopic('Cara dapat penghasilan tambahan dari rumah untuk ibu rumah tangga')">💸 Penghasilan Tambahan</div>
-        <div class="template-pill" onclick="setTopic('Review produk kecantikan lokal yang harganya terjangkau')">💄 Review Produk</div>
-        <div class="template-pill" onclick="setTopic('Tips mendidik anak dengan sabar dan penuh kasih sayang')">👶 Parenting</div>
-        <div class="template-pill" onclick="setTopic('Cara declutter rumah biar lebih rapi dan nyaman')">🏠 Declutter</div>
-        <div class="template-pill" onclick="setTopic('Tips jaga hubungan suami istri tetap harmonis')">❤️ Relationship</div>
-        <div class="template-pill" onclick="setTopic('Rekomendasi buku self improvement yang wajib dibaca')">📚 Self Improvement</div>
+        <div class="template-pill" onclick="setTopic('Produk yang bikin nyesel beli telat, sudah pakai berbulan-bulan dan tidak mau balik ke yang lama')">😭 Nyesel Beli Telat</div>
+        <div class="template-pill" onclick="setTopic('Produk rating 4.9 yang jarang orang tahu padahal sangat worth it dan sudah ribuan yang beli')">⭐ Hidden Gem</div>
+        <div class="template-pill" onclick="setTopic('Produk yang aku beli ulang terus setiap bulan karena memang terbukti bagus dan tidak ada gantinya')">🔄 Beli Ulang Terus</div>
+        <div class="template-pill" onclick="setTopic('Produk yang kelihatan mahal tapi harganya murah banget, suami awalnya protes sekarang minta dibeliin lagi')">😂 Suami Akhirnya Setuju</div>
+        <div class="template-pill" onclick="setTopic('Belanja di bawah 100rb dapat produk yang hasilnya tidak kalah sama yang harganya ratusan ribu')">💸 Budget 100rb</div>
+        <div class="template-pill" onclick="setTopic('Pengeluaran bulanan rumah tangga bisa turun drastis setelah beralih ke produk ini')">📉 Hemat Pengeluaran</div>
+        <div class="template-pill" onclick="setTopic('Review jujur produk viral yang banyak direkomendasikan, apakah benar worth it atau hanya hype')">🔍 Review Jujur</div>
+        <div class="template-pill" onclick="setTopic('Produk perawatan kulit yang akhirnya bikin percaya diri, sudah coba banyak merek ini yang paling cocok')">✨ Skincare Cocok</div>
+        <div class="template-pill" onclick="setTopic('Peralatan dapur yang bikin memasak lebih cepat dan tidak capek, game changer untuk ibu rumah tangga')">🍳 Game Changer Dapur</div>
+        <div class="template-pill" onclick="setTopic('Cara dapat produk bagus dengan harga murah di Shopee, tips belanja cerdas yang selalu aku pakai')">🎟️ Tips Belanja Cerdas</div>
       </div>
     </div>
 
@@ -514,8 +514,28 @@
     </div>
 
     <div class="form-group">
-      <label>Konteks Tambahan (opsional)</label>
-      <textarea id="context" placeholder="Poin-poin yang ingin dibahas, data, atau info tambahan..."></textarea>
+      <label>Nama Produk</label>
+      <input type="text" id="product-name" placeholder="Contoh: Serum Vitamin C Somethinc, Blender Portable Xiaomi" />
+    </div>
+
+    <div class="form-row">
+      <div class="form-group" style="margin-bottom:0">
+        <label>Harga Produk</label>
+        <input type="text" id="product-price" placeholder="Contoh: Rp89.000" />
+      </div>
+      <div class="form-group" style="margin-bottom:0">
+        <label>Platform</label>
+        <select id="platform">
+          <option value="Shopee" selected>🛍️ Shopee</option>
+          <option value="Tokopedia">🟢 Tokopedia</option>
+          <option value="TikTok Shop">🎵 TikTok Shop</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Keunggulan Produk (opsional)</label>
+      <textarea id="context" placeholder="Contoh: terbukti cerahkan kulit 2 minggu, sudah 10rb+ terjual, rating 4.9, harga promo hari ini..."></textarea>
     </div>
 
     <div class="form-row">
@@ -1118,12 +1138,12 @@ ${prompt}`
 </script>
 
   <!-- Install Banner -->
-  <div id="install-banner" style="display:none;position:fixed;bottom:20px;left:50%;transform:translateX(-50%);width:calc(100% - 40px);max-width:740px;background:linear-gradient(135deg,#1c1c28,#13131a);border:1px solid rgba(124,92,252,0.4);border-radius:16px;padding:16px 20px;z-index:999;box-shadow:0 8px 32px rgba(0,0,0,0.5);display:flex;align-items:center;gap:12px;animation:fadeUp 0.4s ease both">
+  <div id="install-banner" style="display:none;position:fixed;bottom:20px;left:50%;transform:translateX(-50%);width:calc(100% - 40px);max-width:740px;background:linear-gradient(135deg,#1c1c28,#13131a);border:1px solid rgba(22,163,74,0.4);border-radius:16px;padding:16px 20px;z-index:999;box-shadow:0 8px 32px rgba(0,0,0,0.5);display:flex;align-items:center;gap:12px;animation:fadeUp 0.4s ease both">
     <div style="flex:1">
       <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:14px;color:#e8e8f0">📲 Install sebagai Aplikasi</div>
       <div style="font-size:12px;color:#6b6b8a;margin-top:2px">Tambah ke layar utama HP kamu</div>
     </div>
-    <button id="btn-install" style="padding:8px 16px;background:linear-gradient(135deg,#7c5cfc,#fc5ca0);border:none;border-radius:10px;color:white;font-family:'Syne',sans-serif;font-weight:700;font-size:13px;cursor:pointer;white-space:nowrap">Install</button>
+    <button id="btn-install" style="padding:8px 16px;background:linear-gradient(135deg,#16a34a,#fc5ca0);border:none;border-radius:10px;color:white;font-family:'Syne',sans-serif;font-weight:700;font-size:13px;cursor:pointer;white-space:nowrap">Install</button>
     <button onclick="document.getElementById('install-banner').style.display='none'" style="padding:8px;background:transparent;border:none;color:#6b6b8a;cursor:pointer;font-size:18px;line-height:1">×</button>
   </div>
 
@@ -1137,9 +1157,9 @@ ${prompt}`
         <button onclick="shareWA()" style="padding:10px 20px;background:#25D366;border:none;border-radius:10px;color:white;font-family:'Syne',sans-serif;font-weight:700;font-size:13px;cursor:pointer">💬 Share WhatsApp</button>
         <button onclick="copyLink()" style="padding:10px 20px;background:#1c1c28;border:1px solid #2a2a3d;border-radius:10px;color:#e8e8f0;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer" id="btn-copy-link">🔗 Copy Link</button>
       </div>
-      <div style="margin-top:16px;padding:12px;background:rgba(124,92,252,0.08);border:1px solid rgba(124,92,252,0.2);border-radius:10px;font-size:12px;color:#a0a0b8;text-align:left">
-        <strong style="color:#c4b5fd">📌 Cara dapat link permanen:</strong><br>
-        1. Buka <a href="https://github.com" target="_blank" style="color:#7c5cfc">github.com</a> → daftar gratis<br>
+      <div style="margin-top:16px;padding:12px;background:rgba(22,163,74,0.08);border:1px solid rgba(22,163,74,0.2);border-radius:10px;font-size:12px;color:#a0a0b8;text-align:left">
+        <strong style="color:#86efac">📌 Cara dapat link permanen:</strong><br>
+        1. Buka <a href="https://github.com" target="_blank" style="color:#16a34a">github.com</a> → daftar gratis<br>
         2. Buat repo baru → upload file ini sebagai <strong>index.html</strong><br>
         3. Settings → Pages → pilih branch main → Save<br>
         4. Dapat link: <strong>namakamu.github.io/nama-repo</strong>
