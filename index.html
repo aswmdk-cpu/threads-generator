@@ -548,9 +548,9 @@
     <div class="form-group" style="margin-top:16px">
       <label>Model AI</label>
       <select id="ai-model">
-        <option value="gemini-2.5-flash" selected>⚡ Gemini 2.5 Flash (Utama)</option>
-        <option value="gemini-2.0-flash">🌿 Gemini 2.0 Flash (Alternatif)</option>
-        <option value="gemini-2.0-flash-lite">✨ Gemini 2.0 Flash Lite (Cadangan)</option>
+        <option value="gemini-2.0-flash" selected>⚡ Gemini 2.0 Flash (Utama)</option>
+        <option value="gemini-2.0-flash-lite-001">🌿 Gemini 2.0 Flash Lite (Hemat)</option>
+        <option value="gemini-1.5-flash-8b">✨ Gemini 1.5 Flash 8B (Cadangan)</option>
       </select>
       <p style="margin-top:6px;font-size:11px;color:var(--muted)">💡 Kalau satu model error, coba ganti ke model lain</p>
     </div>
@@ -671,7 +671,7 @@
     btn.disabled = true;
     showLoadingOverlay(true);
 
-    const count = document.getElementById('count').value;
+    const count = parseInt(document.getElementById('count').value);
     const lang = document.getElementById('lang').value;
     const context = document.getElementById('context').value.trim();
     const shopeeRaw = document.getElementById('shopee-raw')?.value.trim() || '';
@@ -839,7 +839,7 @@ ${prompt}`;
       item.style.animationDelay = `${i * 0.05}s`;
       item.innerHTML = `
         <div class="thread-num">Thread ${t.num}</div>
-        <div class="thread-text" id="thread-text-${t.num}" contenteditable="false">${escHtml(t.text)}</div>
+        <div class="thread-text" id="thread-text-${t.num}" contenteditable="false"></div>
         <div class="thread-footer">
           <span class="char-count ${countClass}" id="char-${t.num}">${len}/500 karakter</span>
           <div style="display:flex;gap:6px">
@@ -862,6 +862,9 @@ ${prompt}`;
         }
       }, 50);
       list.appendChild(item);
+      // Set text safely without escaping issues
+      const textEl = document.getElementById('thread-text-' + t.num);
+      if (textEl) textEl.textContent = t.text;
     });
 
     area.style.display = 'block';
