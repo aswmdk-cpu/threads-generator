@@ -483,6 +483,7 @@
       </div>
       <p style="margin-top:8px;font-size:12px;color:var(--muted);">🔒 Key hanya tersimpan di browser kamu. Dapatkan di <a href="https://aistudio.google.com/apikey" target="_blank" style="color:var(--accent)">aistudio.google.com/apikey</a></p>
     </div>
+    </div>
     <div style="margin-top:12px;display:flex;gap:8px">
       <button onclick="saveApiKey()" style="flex:1;padding:10px;background:linear-gradient(135deg,var(--accent),#15803d);border:none;border-radius:10px;color:white;font-family:'Syne',sans-serif;font-weight:700;font-size:14px;cursor:pointer;">Simpan Key</button>
       <button onclick="clearApiKey()" style="padding:10px 16px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:14px;cursor:pointer;">Hapus</button>
@@ -549,7 +550,7 @@
       <label>Model AI</label>
       <select id="ai-model">
         <option value="gemini-2.0-flash" selected>⚡ Gemini 2.0 Flash (Utama)</option>
-        <option value="gemini-2.0-flash-lite-001">🌿 Gemini 2.0 Flash Lite (Hemat)</option>
+        <option value="gemini-2.0-flash-lite-001">🌿 Gemini Flash Lite (Hemat)</option>
         <option value="gemini-1.5-flash-8b">✨ Gemini 1.5 Flash 8B (Cadangan)</option>
       </select>
       <p style="margin-top:6px;font-size:11px;color:var(--muted)">💡 Kalau satu model error, coba ganti ke model lain</p>
@@ -725,6 +726,7 @@ Balas HANYA dalam format JSON (tanpa backtick, tanpa komentar apapun):
 
     try {
       const model = document.getElementById('ai-model').value;
+
       const fullPrompt = `INSTRUKSI PENTING: Balas HANYA dengan JSON murni. JANGAN tambahkan teks apapun sebelum atau sesudah JSON. JANGAN gunakan markdown atau backtick.
 
 Format JSON yang HARUS kamu ikuti persis:
@@ -733,18 +735,21 @@ Format JSON yang HARUS kamu ikuti persis:
 Sekarang buat konten berikut:
 ${prompt}`;
 
+      const geminiKey = getApiKey();
+      if (!geminiKey) throw new Error('Gemini API key belum diisi! Isi dulu di bagian atas.');
+
       const payload = {
         contents: [{ parts: [{ text: fullPrompt }] }],
         generationConfig: { maxOutputTokens: 1500, temperature: 0.9 }
       };
 
       const res = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${getApiKey()}`,
+        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${geminiKey}`,
         { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }
       );
 
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error?.message || 'API error');
+      if (!res.ok) throw new Error(data.error?.message || 'Gemini API error');
 
       let raw = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
       const count = parseInt(document.getElementById('count').value);
