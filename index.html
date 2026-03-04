@@ -727,12 +727,18 @@ Balas HANYA dalam format JSON (tanpa backtick, tanpa komentar apapun):
     try {
       const model = document.getElementById('ai-model').value;
 
-      const fullPrompt = `INSTRUKSI PENTING: Balas HANYA dengan JSON murni. JANGAN tambahkan teks apapun sebelum atau sesudah JSON. JANGAN gunakan markdown atau backtick.
+      const fullPrompt = `BALAS HANYA DENGAN JSON. TIDAK ADA TEKS LAIN. TIDAK ADA MARKDOWN. TIDAK ADA BACKTICK.
 
-Format JSON yang HARUS kamu ikuti persis:
-{"threads":[{"num":1,"text":"isi thread 1"},{"num":2,"text":"isi thread 2"}]}
+OUTPUT HARUS PERSIS SEPERTI INI (ganti isi saja, struktur jangan diubah):
+{"threads":[{"num":1,"text":"teks thread 1 di sini"},{"num":2,"text":"teks thread 2 di sini"}]}
 
-Sekarang buat konten berikut:
+ATURAN JSON:
+- Gunakan tanda kutip ganda untuk semua string
+- Jangan ada koma di akhir array terakhir
+- Jangan ada newline di dalam nilai "text", gunakan spasi saja
+- Setiap "text" maksimal 500 karakter
+
+KONTEN YANG DIBUAT:
 ${prompt}`;
 
       const geminiKey = getApiKey();
@@ -740,7 +746,7 @@ ${prompt}`;
 
       const payload = {
         contents: [{ parts: [{ text: fullPrompt }] }],
-        generationConfig: { maxOutputTokens: 1500, temperature: 0.9 }
+        generationConfig: { maxOutputTokens: 2048, temperature: 0.8 }
       };
 
       // Auto ganti model kalau rate limit
