@@ -936,10 +936,23 @@ OUTPUT: JSON saja, tanpa teks lain.
 
     try {
       const totalThreads = parseInt(document.getElementById('count').value);
+
+      // Collect existing thread texts for context
+      let prevContext = '';
+      for (let i = 1; i < threadNum; i++) {
+        const prevEl = document.getElementById('thread-text-' + i);
+        if (prevEl) prevContext += `\nThread ${i}: ${prevEl.textContent.trim()}`;
+      }
+
       const prompt = `Tulis SATU post Threads (bagian ${threadNum} dari ${totalThreads}) dalam bahasa ${lang}.
 Topik: "${topic}"
 Tone: ${tone}
-MAX 500 karakter. Kalimat pendek & to the point. Harus kalimat LENGKAP, tidak terpotong.
+${prevContext ? `\nKonteks thread sebelumnya (jangan diulangi, tapi harus nyambung):\n${prevContext}\n` : ''}
+ATURAN:
+- MAX 500 karakter
+- Kalimat LENGKAP, tidak terpotong di tengah
+- Harus nyambung dengan thread sebelumnya
+- Singkat & to the point
 Balas HANYA teks post-nya saja, tanpa penjelasan apapun.`;
 
       const regenPayload = {
