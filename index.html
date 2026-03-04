@@ -549,9 +549,9 @@
     <div class="form-group" style="margin-top:16px">
       <label>Model AI</label>
       <select id="ai-model">
-        <option value="gemini-2.0-flash" selected>⚡ Gemini 2.0 Flash (Utama)</option>
-        <option value="gemini-2.0-flash-lite-001">🌿 Gemini Flash Lite (Hemat)</option>
-        <option value="gemini-1.5-flash-8b">✨ Gemini 1.5 Flash 8B (Cadangan)</option>
+        <option value="gemini-2.5-flash" selected>⚡ Gemini 2.5 Flash (Utama)</option>
+        <option value="gemini-2.0-flash">🌿 Gemini 2.0 Flash (Alternatif)</option>
+        <option value="gemini-2.0-flash-lite">✨ Gemini 2.0 Flash Lite (Hemat)</option>
       </select>
       <p style="margin-top:6px;font-size:11px;color:var(--muted)">💡 Kalau satu model error, coba ganti ke model lain</p>
     </div>
@@ -746,8 +746,8 @@ ${prompt}`;
       // Auto ganti model kalau rate limit
       const modelFallbacks = [
         model,
-        'gemini-2.0-flash-lite-001',
-        'gemini-1.5-flash-8b'
+        'gemini-2.0-flash',
+        'gemini-2.0-flash-lite'
       ].filter((m, i, arr) => arr.indexOf(m) === i); // deduplicate
 
       let data, res, usedModel = model;
