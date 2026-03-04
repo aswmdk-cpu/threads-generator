@@ -1,0 +1,1195 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="theme-color" content="#7c5cfc">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Threads Gen">
+<link rel="manifest" href="data:application/json,{
+  %22name%22:%22Threads%20Utas%20Generator%22,
+  %22short_name%22:%22Affiliate%20Gen%22,
+  %22start_url%22:%22.%22,
+  %22display%22:%22standalone%22,
+  %22background_color%22:%22%230a0a0f%22,
+  %22theme_color%22:%22%237c5cfc%22,
+  %22icons%22:[{%22src%22:%22https://api.dicebear.com/7.x/shapes/svg?seed=threads%22,%22sizes%22:%22192x192%22,%22type%22:%22image/svg+xml%22}]
+}">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Threads Utas Generator</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0a0a0f;
+    --surface: #13131a;
+    --surface2: #1c1c28;
+    --border: #2a2a3d;
+    --accent: #7c5cfc;
+    --accent2: #fc5ca0;
+    --text: #e8e8f0;
+    --muted: #6b6b8a;
+    --success: #5cfca0;
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 0;
+  }
+
+  /* Animated background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: 
+      radial-gradient(ellipse 60% 50% at 20% 20%, rgba(124,92,252,0.12) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 60% at 80% 80%, rgba(252,92,160,0.10) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 40px 20px 80px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Header */
+  header {
+    text-align: center;
+    margin-bottom: 48px;
+    animation: fadeDown 0.6s ease both;
+  }
+
+  .logo-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(135deg, rgba(124,92,252,0.2), rgba(252,92,160,0.15));
+    border: 1px solid rgba(124,92,252,0.3);
+    border-radius: 100px;
+    padding: 6px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--accent);
+    margin-bottom: 20px;
+    letter-spacing: 0.05em;
+  }
+
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 800;
+    line-height: 1.1;
+    background: linear-gradient(135deg, #fff 0%, #c4b5fd 50%, #fde68a 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 12px;
+  }
+
+  .subtitle {
+    color: var(--muted);
+    font-size: 15px;
+    font-weight: 300;
+  }
+
+  /* Form card */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 32px;
+    margin-bottom: 24px;
+    animation: fadeUp 0.6s ease 0.1s both;
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  .form-group {
+    margin-bottom: 16px;
+  }
+
+  .form-group:last-child { margin-bottom: 0; }
+
+  label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  input, textarea, select {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 16px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    resize: vertical;
+  }
+
+  input:focus, textarea:focus, select:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(124,92,252,0.15);
+  }
+
+  select option { background: #1c1c28; }
+
+  textarea { min-height: 90px; }
+
+  /* Pill toggles */
+  .pill-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .pill {
+    padding: 7px 14px;
+    border-radius: 100px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+    user-select: none;
+  }
+
+  .pill:hover { border-color: var(--accent); color: var(--text); }
+  .pill.active {
+    background: linear-gradient(135deg, var(--accent), #a855f7);
+    border-color: transparent;
+    color: #fff;
+  }
+
+  /* Generate button */
+  .btn-generate {
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border: none;
+    border-radius: 14px;
+    color: white;
+    font-family: 'Syne', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
+    margin-top: 24px;
+    position: relative;
+    overflow: hidden;
+    letter-spacing: 0.02em;
+  }
+
+  .btn-generate:hover:not(:disabled) {
+    opacity: 0.92;
+    transform: translateY(-1px);
+    box-shadow: 0 8px 30px rgba(124,92,252,0.4);
+  }
+
+  .btn-generate:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .btn-generate .spinner {
+    display: none;
+    width: 18px; height: 18px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    margin: 0 auto;
+  }
+
+  .btn-generate.loading .btn-text { display: none; }
+  .btn-generate.loading .spinner { display: block; }
+
+  .loading-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(10,10,15,0.7);
+    backdrop-filter: blur(4px);
+    z-index: 999;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .loading-overlay.show { display: flex; }
+
+  .loading-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 32px 40px;
+    text-align: center;
+    animation: fadeUp 0.3s ease both;
+  }
+
+  .loading-ring {
+    width: 48px; height: 48px;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 16px;
+  }
+
+  .loading-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+
+  .loading-steps {
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  /* Output area */
+  #output-area {
+    display: none;
+    animation: fadeUp 0.5s ease both;
+  }
+
+  .output-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+
+  .output-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+  }
+
+  .btn-copy-all {
+    padding: 8px 16px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .btn-copy-all:hover { border-color: var(--accent); color: var(--accent); }
+
+  .thread-list { display: flex; flex-direction: column; gap: 12px; }
+
+  .thread-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    position: relative;
+    transition: border-color 0.2s;
+    animation: fadeUp 0.4s ease both;
+  }
+
+  .thread-item:hover { border-color: rgba(124,92,252,0.4); }
+
+  .thread-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .thread-text {
+    font-size: 15px;
+    line-height: 1.7;
+    color: var(--text);
+    white-space: pre-wrap;
+  }
+
+  .thread-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 12px;
+  }
+
+  .char-count {
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .char-count.warn { color: #fbbf24; }
+  .char-count.over { color: #f87171; }
+
+  .btn-copy {
+    padding: 5px 12px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--muted);
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .btn-copy:hover { border-color: var(--success); color: var(--success); }
+  .btn-copy.copied { border-color: var(--success); color: var(--success); }
+
+  /* Error */
+  .error-msg {
+    background: rgba(248,113,113,0.1);
+    border: 1px solid rgba(248,113,113,0.3);
+    border-radius: 12px;
+    padding: 16px;
+    color: #f87171;
+    font-size: 14px;
+    margin-top: 16px;
+  }
+
+  /* Section label */
+  .section-label {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  @keyframes fadeDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Editable thread */
+  .thread-text[contenteditable="true"] {
+    border: 1px solid var(--accent);
+    border-radius: 8px;
+    padding: 8px;
+    outline: none;
+    background: rgba(124,92,252,0.05);
+    cursor: text;
+  }
+
+  .btn-edit.editing { border-color: var(--accent); color: var(--accent); }
+
+  /* History */
+  .history-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 16px 20px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+
+  .history-card:hover { border-color: rgba(124,92,252,0.4); }
+  .history-title { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+  .history-meta { font-size: 11px; color: var(--muted); }
+
+  /* Template pills */
+  .template-pill {
+    padding: 6px 12px;
+    border-radius: 100px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+
+  .template-pill:hover { border-color: var(--accent); color: var(--text); background: rgba(124,92,252,0.1); }
+
+  .template-scroll {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    scrollbar-width: none;
+  }
+
+  .template-scroll::-webkit-scrollbar { display: none; }
+
+  @media (max-width: 560px) {
+    .form-row { grid-template-columns: 1fr; }
+    .card { padding: 20px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div class="logo-badge">✦ AI-Powered</div>
+    <h1>Threads Utas<br>Generator</h1>
+    <p class="subtitle">Buat utas viral dalam hitungan detik</p>
+    <p style="margin-top:8px;font-size:13px;color:var(--accent);font-weight:600;opacity:0.8">by bangmudik</p>
+  </header>
+
+  <div class="card" id="apikey-card">
+    <div class="section-label">🔑 API KEY</div>
+
+    <div id="section-free">
+      <div class="form-group" style="margin-bottom:0">
+        <label>Gemini API Key <span style="color:#4ade80;font-size:11px">✓ Gratis & Reset Harian</span></label>
+        <div style="position:relative">
+          <input type="password" id="api-key-free" placeholder="AIza..." style="padding-right:90px" />
+          <button onclick="toggleApiVis('free')" id="btn-vis-free" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--muted);font-size:12px;padding:4px 10px;cursor:pointer;font-family:'DM Sans',sans-serif;">Lihat</button>
+        </div>
+        <p style="margin-top:8px;font-size:12px;color:var(--muted);">🔒 Dapatkan gratis di <a href="https://aistudio.google.com/apikey" target="_blank" style="color:var(--accent)">aistudio.google.com/apikey</a></p>
+      </div>
+    </div>
+
+
+    <div style="margin-top:12px;display:flex;gap:8px">
+      <button onclick="saveApiKey()" style="flex:1;padding:10px;background:linear-gradient(135deg,var(--accent),#a855f7);border:none;border-radius:10px;color:white;font-family:'Syne',sans-serif;font-weight:700;font-size:14px;cursor:pointer;">Simpan Key</button>
+      <button onclick="clearApiKey()" style="padding:10px 16px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:14px;cursor:pointer;">Hapus</button>
+    </div>
+    <div id="key-status" style="display:none;margin-top:10px;font-size:13px;padding:8px 12px;border-radius:8px;"></div>
+  </div>
+
+  <div class="card">
+    <div class="section-label">Topik & Konten</div>
+
+    <div class="form-group">
+      <label>⚡ Template Topik Populer</label>
+      <div class="template-scroll">
+        <div class="template-pill" onclick="setTopic('Momen lucu dan receh sehari-hari sama suami yang bikin geleng kepala tapi tetap sayang')">😭 Curhat Suami</div>
+        <div class="template-pill" onclick="setTopic('Ekspektasi sebelum nikah vs realita setelah nikah yang tidak ada yang kasih tahu')">🤯 Plot Twist Nikah</div>
+        <div class="template-pill" onclick="setTopic('Hal yang dianggap wajar kalau dilakukan suami tapi jadi masalah kalau istri yang melakukan')">😤 Standar Ganda</div>
+        <div class="template-pill" onclick="setTopic('Drama keluarga besar, mertua dan ipar yang bikin geleng kepala tapi harus tetap sabar')">😅 Drama Mertua</div>
+        <div class="template-pill" onclick="setTopic('Red flag yang dulu aku abaikan waktu pacaran, sekarang baru sadar setelah menikah')">💔 Red Flag</div>
+        <div class="template-pill" onclick="setTopic('Hal yang jarang diakui ibu rumah tangga tapi sebenarnya semua ngerasain hal yang sama')">🤭 Rahasia IRT</div>
+        <div class="template-pill" onclick="setTopic('Beban pikiran ibu rumah tangga yang tidak kelihatan tapi selalu ada setiap hari')">😪 Mental Load</div>
+        <div class="template-pill" onclick="setTopic('Pendapat kontroversial tentang pernikahan yang mungkin banyak yang tidak setuju tapi ini kenyataannya')">🔥 Pendapat Kontroversial</div>
+        <div class="template-pill" onclick="setTopic('Realita punya anak yang jujur tanpa filter, yang tidak diceritakan di media sosial')">👶 Realita Punya Anak</div>
+        <div class="template-pill" onclick="setTopic('Percakapan lucu dan mengharukan sehari-hari antara aku dan suami yang bikin baper')">💬 Dialog Sama Suami</div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Topik / Judul Utas</label>
+      <input type="text" id="topic" placeholder="Contoh: 5 niche Shopee Affiliate paling gurih 2025" />
+    </div>
+
+    <div class="form-group">
+      <label>🛍️ Info Produk</label>
+      <textarea id="shopee-raw" placeholder="Ketik manual info produk:&#10;Nama: Serum Vitamin C Somethinc&#10;Harga: Rp89.000&#10;Keunggulan: cerahkan kulit, cocok kulit sensitif, rating 4.9&#10;&#10;Atau paste langsung dari tombol Bagikan Shopee:&#10;Temukan Serum Vitamin C seharga Rp89.000. https://s.shopee.co.id/xxx" style="height:130px;font-size:13px"></textarea>
+      <p style="margin-top:6px;font-size:11px;color:var(--muted)">✏️ Ketik manual di atas <strong>atau</strong> paste dari tombol <strong>Bagikan</strong> di app Shopee — link otomatis terbaca</p>
+    </div>
+
+    <div class="form-group">
+      <label>Keunggulan Tambahan (opsional)</label>
+      <textarea id="context" placeholder="Poin-poin yang ingin dibahas, info tambahan..." style="height:80px"></textarea>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group" style="margin-bottom:0">
+        <label>Jumlah Thread</label>
+        <select id="count">
+          <option value="1">1 thread</option>
+          <option value="2">2 thread</option>
+          <option value="3">3 thread</option>
+          <option value="5" selected>5 thread</option>
+          <option value="7">7 thread</option>
+        </select>
+      </div>
+      <div class="form-group" style="margin-bottom:0">
+        <label>Bahasa</label>
+        <select id="lang">
+          <option value="Indonesia" selected>🇮🇩 Indonesia</option>
+          <option value="English">🇺🇸 English</option>
+          <option value="Inggris campur gaul">🔥 Campur Gaul</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group" style="margin-top:16px">
+      <label>Model AI</label>
+      <select id="ai-model">
+        <option value="gemini-2.5-flash" selected>⚡ Gemini 2.5 Flash</option>
+        <option value="gemini-2.0-flash">🌿 Gemini 2.0 Flash</option>
+        <option value="gemini-2.0-flash-lite">💨 Gemini Flash Lite</option>
+        <option value="gemini-1.5-flash">🔋 Gemini 1.5 Flash (Cadangan)</option>
+      </select>
+      <p style="margin-top:6px;font-size:11px;color:var(--muted)">💡 Claude Haiku paling cepat. Sonnet lebih pintar tapi lebih lambat.</p>
+    </div>
+
+    <div class="section-label" style="margin-top:24px">Gaya Penulisan</div>
+
+    <div class="form-group">
+      <label>Tone</label>
+      <div class="pill-group" id="tone-group">
+        <div class="pill active" data-val="santai dan relatable">😎 Santai</div>
+        <div class="pill" data-val="informatif dan edukatif">📚 Edukatif</div>
+        <div class="pill" data-val="hype dan excited">🔥 Hype</div>
+        <div class="pill" data-val="serius dan profesional">💼 Pro</div>
+        <div class="pill" data-val="storytelling dan personal">💬 Story</div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Format Pembuka Hook</label>
+      <div class="pill-group" id="hook-group">
+        <div class="pill active" data-val="pertanyaan provokatif">❓ Pertanyaan</div>
+        <div class="pill" data-val="pernyataan mengejutkan">💥 Shocking</div>
+        <div class="pill" data-val="data/angka menarik">📊 Data</div>
+        <div class="pill" data-val="kisah personal">🙋 Kisah</div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Elemen Tambahan</label>
+      <div class="pill-group" id="extra-group">
+        <div class="pill active" data-val="emoji">✨ Emoji</div>
+        <div class="pill active" data-val="CTA di akhir">📣 CTA Akhir</div>
+        <div class="pill" data-val="nomor di tiap thread">🔢 Nomor</div>
+        <div class="pill" data-val="hashtag relevan">🏷️ Hashtag</div>
+        <div class="pill" data-val="penekanan dengan KAPITAL">‼️ Caps</div>
+      </div>
+    </div>
+
+    <button class="btn-generate" id="btn-gen">
+      <span class="btn-text">✦ Generate Utas Sekarang</span>
+      <div class="spinner"></div>
+    </button>
+
+    <div id="error-msg" class="error-msg" style="display:none"></div>
+  </div>
+
+  <div id="output-area">
+    <div class="output-header">
+      <div class="output-title">✦ Hasil Utas</div>
+      <button class="btn-copy-all" id="btn-copy-all">Copy Semua</button>
+    </div>
+    <div class="thread-list" id="thread-list"></div>
+  </div>
+
+  <div id="history-area" style="display:none;margin-top:24px">
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <div class="section-label" style="margin-bottom:0">🕓 Riwayat Generate</div>
+        <button onclick="clearAllHistory()" style="padding:5px 12px;background:transparent;border:1px solid var(--border);border-radius:8px;color:var(--muted);font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;">Hapus Semua</button>
+      </div>
+      <div id="history-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Loading Overlay -->
+<div class="loading-overlay" id="loading-overlay">
+  <div class="loading-box">
+    <div class="loading-ring"></div>
+    <div class="loading-title">Sedang membuat utas...</div>
+    <div class="loading-steps" id="loading-step">Menghubungi AI ✦</div>
+  </div>
+</div>
+
+<script>
+  // Pill toggle logic
+  function setupPills(groupId, multiSelect = true) {
+    const group = document.getElementById(groupId);
+    group.querySelectorAll('.pill').forEach(pill => {
+      pill.addEventListener('click', () => {
+        if (multiSelect) {
+          pill.classList.toggle('active');
+        } else {
+          group.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+          pill.classList.add('active');
+        }
+      });
+    });
+  }
+
+  setupPills('tone-group', false);
+  setupPills('hook-group', false);
+  setupPills('extra-group', true);
+
+  function getSelected(groupId) {
+    return [...document.querySelectorAll(`#${groupId} .pill.active`)]
+      .map(p => p.dataset.val);
+  }
+
+  document.getElementById('btn-gen').addEventListener('click', generateThreads);
+
+  async function generateThreads() {
+    const topic = document.getElementById('topic').value.trim();
+    if (!getApiKey()) {
+      showError('API key belum diisi! Isi dulu di bagian atas.');
+      document.getElementById('api-key').focus();
+      return;
+    }
+    if (!topic) {
+      showError('Topik tidak boleh kosong!');
+      return;
+    }
+
+    const btn = document.getElementById('btn-gen');
+    const errDiv = document.getElementById('error-msg');
+    errDiv.style.display = 'none';
+    btn.classList.add('loading');
+    btn.disabled = true;
+    showLoadingOverlay(true);
+
+    const count = parseInt(document.getElementById('count').value);
+    const lang = document.getElementById('lang').value;
+    const context = document.getElementById('context').value.trim();
+    const shopeeRaw = '';
+    const tone = getSelected('tone-group')[0] || 'santai dan relatable';
+    const hook = getSelected('hook-group')[0] || 'pertanyaan provokatif';
+    const extras = getSelected('extra-group');
+
+    const extraText = extras.length ? `Gunakan elemen: ${extras.join(', ')}.` : '';
+
+    // Parse Shopee share text - extract only what's needed
+    const linkMatch = shopeeRaw.match(/https?:\/\/\S+/);
+    const shopeeLink = linkMatch ? linkMatch[0] : '';
+
+    // Extract product name - from "Temukan X seharga" or "Nama: X" pattern
+    let productName = '';
+    let productPrice = '';
+    const nameMatch = shopeeRaw.match(/Temukan\s+(.+?)\s+seharga/i) || shopeeRaw.match(/Nama:\s*(.+)/i);
+    const priceMatch = shopeeRaw.match(/seharga\s+(Rp[\d.,]+)/i) || shopeeRaw.match(/Harga:\s*(Rp[\d.,]+)/i) || shopeeRaw.match(/(Rp[\d.,]+)/);
+    if (nameMatch) productName = nameMatch[1].trim();
+    if (priceMatch) productPrice = priceMatch[1].trim();
+
+    // If can't parse, use raw but truncated
+    const productInfo = productName 
+      ? `Nama produk: ${productName}${productPrice ? ', Harga: ' + productPrice : ''}`
+      : shopeeRaw.replace(/https?:\/\/\S+/g, '').trim().slice(0, 120);
+
+    const prompt = `Tulis ${count} post Threads bahasa ${lang} tentang: "${topic}".
+${context ? `Konteks: ${context}` : ''}
+
+GAYA: Tone ${tone}. Hook: ${hook}. ${extraText}
+
+ATURAN:
+- Tiap post MAX 500 karakter, singkat & to the point
+- Kalimat pendek, 1-2 baris per kalimat, tidak bertele-tele
+- Post 1: hook kuat yang bikin orang berhenti scroll
+- Post tengah: bangun cerita, mengalir natural
+- Post terakhir: kesimpulan atau CTA natural
+- Bahasa casual seperti ngobrol teman, bukan artikel
+- DILARANG pakai markdown: jangan pakai *bold*, _italic_, atau format apapun`;
+
+    try {
+      const model = document.getElementById('ai-model').value;
+
+      const fullPrompt = `${prompt}
+
+OUTPUT: JSON saja, tanpa teks lain.
+{"threads":[{"num":1,"text":"..."},{"num":2,"text":"..."}]}`;
+
+            const apiKey = getApiKey();
+      if (!apiKey) throw new Error('Gemini API key belum diisi! Isi dulu di bagian atas.');
+
+      const payload = {
+        contents: [{ parts: [{ text: fullPrompt }] }],
+        generationConfig: { maxOutputTokens: 4096, temperature: 0.8, responseMimeType: 'application/json' }
+      };
+      const res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+        { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }
+      );
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error?.message || 'Gemini error.');
+
+      let raw = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+      const count = parseInt(document.getElementById('count').value);
+      let parsed;
+
+      // Clean markdown fences
+      raw = raw.replace(/```json|```/g, '').trim();
+
+      // Step 1: Try direct JSON parse
+      try { parsed = JSON.parse(raw); } catch(e) {}
+
+      // Step 2: Find JSON anywhere in text
+      if (!parsed || !Array.isArray(parsed.threads)) {
+        try {
+          // Try all possible JSON objects in the text
+          const matches = [...raw.matchAll(/\{[^{}]*"threads"[^{}]*\[[\s\S]*?\]\s*\}/g)];
+          for (const m of matches) {
+            try { parsed = JSON.parse(m[0]); if (Array.isArray(parsed.threads)) break; } catch(e) {}
+          }
+        } catch(e) {}
+      }
+
+      // Step 3: Find start of {"threads" and try to parse from there
+      if (!parsed || !Array.isArray(parsed.threads)) {
+        try {
+          const start = raw.indexOf('{"threads"');
+          if (start >= 0) {
+            // Try from start to each possible end
+            for (let i = raw.length; i > start; i--) {
+              if (raw[i] === '}') {
+                try { 
+                  const candidate = JSON.parse(raw.slice(start, i + 1));
+                  if (Array.isArray(candidate.threads) && candidate.threads.length > 0) {
+                    parsed = candidate;
+                    break;
+                  }
+                } catch(e) {}
+              }
+            }
+          }
+        } catch(e) {}
+      }
+
+      // Step 4: Extract "text" values directly with regex
+      if (!parsed || !Array.isArray(parsed.threads) || parsed.threads.length === 0) {
+        try {
+          const re = /"text"\s*:\s*"((?:[^"\\]|\\[\s\S])*)"/g;
+          const textMatches = [...raw.matchAll(re)];
+          if (textMatches.length > 0) {
+            parsed = { threads: textMatches.slice(0, count).map((m, i) => ({
+              num: i + 1,
+              text: m[1].replace(/\\n/g, '\n').replace(/\\"/g, '"').replace(/\\'/g, "'")
+            }))};
+          }
+        } catch(e) {}
+      }
+
+      // Step 5: Fallback - split by double newline
+      if (!parsed || !Array.isArray(parsed.threads) || parsed.threads.length === 0) {
+        const blocks = raw.split(/\n{2,}/).filter(b => b.trim().length > 10);
+        const threads = blocks
+          .map(b => b.replace(/^\[?Thread \d+\]?[:\s]*/i, '').replace(/^\d+[.):] */, '').trim())
+          .filter(b => b.length > 10 && !b.startsWith('{') && !b.startsWith('['))
+          .slice(0, count)
+          .map((text, i) => ({ num: i + 1, text }));
+        if (threads.length === 0) throw new Error('Gagal memproses respon. Coba generate ulang.');
+        parsed = { threads };
+      }
+
+      renderThreads(parsed.threads);
+      saveHistory(document.getElementById('topic').value.trim(), parsed.threads);
+    } catch (err) {
+      // Translate error to friendly Indonesian
+      let errMsg = err.message || '';
+      let friendlyMsg = '';
+      if (errMsg.toLowerCase().includes('quota') || errMsg.toLowerCase().includes('rate') || err.message.includes('429')) {
+        const retryMatch = errMsg.match(/retry in ([0-9.]+)s/i);
+        const waitSec = retryMatch ? Math.ceil(parseFloat(retryMatch[1])) : 30;
+        friendlyMsg = `⏳ Sedang ramai digunakan. Tunggu ${waitSec} detik lalu coba generate lagi ya!`;
+      } else if (errMsg.toLowerCase().includes('api key') || errMsg.toLowerCase().includes('invalid') || errMsg.includes('401') || errMsg.includes('403')) {
+        friendlyMsg = '🔑 API key tidak valid. Cek kembali API key Gemini kamu di bagian atas.';
+      } else if (errMsg.toLowerCase().includes('not found') || errMsg.toLowerCase().includes('404')) {
+        friendlyMsg = '🔄 Model tidak tersedia. Coba ganti ke model lain di dropdown Model AI.';
+      } else if (errMsg.toLowerCase().includes('network') || errMsg.toLowerCase().includes('fetch') || errMsg.toLowerCase().includes('failed to fetch')) {
+        friendlyMsg = '📶 Koneksi bermasalah. Cek internet kamu lalu coba lagi.';
+      } else if (errMsg.includes('Gagal memproses') || errMsg.includes('Gagal setelah')) {
+        friendlyMsg = '🔄 AI tidak bisa memproses. Coba generate ulang atau ganti model lain.';
+      } else {
+        friendlyMsg = '⚠️ Gagal generate. Coba lagi atau ganti model AI lain.';
+      }
+      showError(friendlyMsg);
+    } finally {
+      btn.classList.remove('loading');
+      btn.disabled = false;
+      showLoadingOverlay(false);
+    }
+  }
+
+  function renderThreads(threads) {
+    const area = document.getElementById('output-area');
+    const list = document.getElementById('thread-list');
+    list.innerHTML = '';
+
+    threads.forEach((t, i) => {
+      const len = t.text.length;
+      const countClass = len > 500 ? 'over' : len > 400 ? 'warn' : '';
+
+      const item = document.createElement('div');
+      item.className = 'thread-item';
+      item.style.animationDelay = `${i * 0.05}s`;
+      item.innerHTML = `
+        <div class="thread-num">Thread ${t.num}</div>
+        <div class="thread-text" id="thread-text-${t.num}" contenteditable="false"></div>
+        <div class="thread-footer">
+          <span class="char-count ${countClass}" id="char-${t.num}">${len}/500 karakter</span>
+          <div style="display:flex;gap:6px">
+            <button class="btn-copy btn-edit" style="font-size:11px;padding:5px 10px" onclick="toggleEdit(this, ${t.num})" title="Edit thread ini">✏️</button>
+            <button class="btn-copy" style="font-size:11px;padding:5px 10px" onclick="regenThread(this, ${t.num})" title="Generate ulang thread ini">🔄</button>
+            <button class="btn-copy" onclick="copyThread(this, '${t.num}')">Copy</button>
+          </div>
+        </div>`;
+      
+      // Live char count on edit
+      setTimeout(() => {
+        const el = document.getElementById('thread-text-' + t.num);
+        const charEl = document.getElementById('char-' + t.num);
+        if (el && charEl) {
+          el.addEventListener('input', () => {
+            const l = el.innerText.length;
+            charEl.textContent = l + '/500 karakter';
+            charEl.className = 'char-count' + (l > 500 ? ' over' : l > 400 ? ' warn' : '');
+          });
+        }
+      }, 50);
+      list.appendChild(item);
+      // Set text safely without escaping issues
+      const textEl = document.getElementById('thread-text-' + t.num);
+      if (textEl) {
+        // Strip markdown bold/italic that Gemini sometimes adds
+        const cleanText = t.text
+          .replace(/\*\*(.*?)\*\*/g, '$1')
+          .replace(/\*(.*?)\*/g, '$1')
+          .replace(/__(.*?)__/g, '$1')
+          .replace(/_(.*?)_/g, '$1')
+          .trim();
+        textEl.textContent = cleanText;
+      }
+    });
+
+    area.style.display = 'block';
+    area.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+    // Copy all button
+    document.getElementById('btn-copy-all').onclick = () => {
+      const all = threads.map((t, i) => `[${i+1}/${threads.length}]\n${t.text}`).join('\n\n');
+      navigator.clipboard.writeText(all).then(() => {
+        const btn = document.getElementById('btn-copy-all');
+        btn.textContent = '✓ Tersalin!';
+        setTimeout(() => btn.textContent = 'Copy Semua', 2000);
+      });
+    };
+  }
+
+  function copyThread(btn, threadNum) {
+    const el = document.getElementById('thread-text-' + threadNum);
+    const text = el ? el.innerText : '';
+    navigator.clipboard.writeText(text).then(() => {
+      btn.textContent = '✓ Copied';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+    });
+  }
+
+  async function regenThread(btn, threadNum) {
+    const topic = document.getElementById('topic').value.trim();
+    if (!topic) { showError('Topik kosong!'); return; }
+    
+    const el = document.getElementById('thread-text-' + threadNum);
+    const charEl = document.getElementById('char-' + threadNum);
+    if (!el) return;
+
+    btn.textContent = '⏳';
+    btn.disabled = true;
+    el.style.opacity = '0.4';
+
+    const tone = getSelected('tone-group')[0] || 'santai dan relatable';
+    const lang = document.getElementById('lang').value;
+    const model = document.getElementById('ai-model').value;
+
+    try {
+      const totalThreads = parseInt(document.getElementById('count').value);
+
+      // Collect existing thread texts for context
+      let prevContext = '';
+      for (let i = 1; i < threadNum; i++) {
+        const prevEl = document.getElementById('thread-text-' + i);
+        if (prevEl) prevContext += `\nThread ${i}: ${prevEl.textContent.trim()}`;
+      }
+
+      const prompt = `Tulis SATU post Threads (bagian ${threadNum} dari ${totalThreads}) dalam bahasa ${lang}.
+Topik: "${topic}"
+Tone: ${tone}
+${prevContext ? `\nKonteks thread sebelumnya (jangan diulangi, tapi harus nyambung):\n${prevContext}\n` : ''}
+ATURAN:
+- MAX 500 karakter
+- Kalimat LENGKAP, tidak terpotong di tengah
+- Harus nyambung dengan thread sebelumnya
+- Singkat & to the point
+Balas HANYA teks post-nya saja, tanpa penjelasan apapun.`;
+
+      const regenPayload = {
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: { maxOutputTokens: 2048, temperature: 0.85, stopSequences: [] }
+      };
+      const res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${getApiKey()}`,
+        { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(regenPayload) }
+      );
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error?.message || 'Gemini error');
+      let newText = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+      // Clean up - remove quotes, backticks, numbering AI sometimes adds
+      newText = newText.trim()
+        .replace(/^["'`]|["'`]$/g, '')
+        .replace(/^Thread \d+[:\s]*/i, '')
+        .replace(/^\d+[.):]\s*/, '')
+        .trim();
+      if (newText) {
+        el.textContent = newText;
+        const newLen = newText.length;
+        charEl.textContent = newLen + '/500 karakter';
+        charEl.className = 'char-count' + (newLen > 500 ? ' over' : newLen > 400 ? ' warn' : '');
+      }
+    } catch(e) {
+      showError('Gagal regenerate: ' + e.message);
+    } finally {
+      btn.textContent = '🔄';
+      btn.disabled = false;
+      el.style.opacity = '1';
+    }
+  }
+
+  function showError(msg) {
+    const el = document.getElementById('error-msg');
+    el.textContent = msg;
+    el.style.display = 'block';
+  }
+
+  function showLoadingOverlay(show) {
+    const overlay = document.getElementById('loading-overlay');
+    if (show) {
+      overlay.classList.add('show');
+      // Animate loading steps
+      const steps = ['Menghubungi AI ✦', 'Menyusun hook pembuka...', 'Menulis konten...', 'Finishing touches ✨'];
+      let i = 0;
+      window._loadingTimer = setInterval(() => {
+        document.getElementById('loading-step').textContent = steps[i % steps.length];
+        i++;
+      }, 1200);
+    } else {
+      overlay.classList.remove('show');
+      clearInterval(window._loadingTimer);
+    }
+  }
+
+  function escHtml(str) {
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  // API Key management
+  function getApiKey() { return localStorage.getItem('gemini_api_key') || ''; }
+
+  function saveApiKey() {
+    const key = document.getElementById('api-key-free').value.trim();
+    if (!key.startsWith('AIza')) {
+      showKeyStatus('Format key tidak valid. Harus dimulai dengan AIza', false);
+      return;
+    }
+    localStorage.setItem('gemini_api_key', key);
+    showKeyStatus('✓ API key tersimpan & siap digunakan!', true);
+  }
+
+  function clearApiKey() {
+    localStorage.removeItem('gemini_api_key');
+    document.getElementById('api-key-free').value = '';
+    showKeyStatus('Key dihapus', false);
+  }
+
+
+
+  function showKeyStatus(msg, success) {
+    const el = document.getElementById('key-status');
+    el.style.display = 'block';
+    el.style.background = success ? 'rgba(92,252,160,0.1)' : 'rgba(248,113,113,0.1)';
+    el.style.border = success ? '1px solid rgba(92,252,160,0.3)' : '1px solid rgba(248,113,113,0.3)';
+    el.style.color = success ? 'var(--success)' : '#f87171';
+    el.textContent = msg;
+  }
+
+
+  // ===== EDIT MODE =====
+  function toggleEdit(btn, threadNum) {
+    const el = document.getElementById('thread-text-' + threadNum);
+    if (!el) return;
+    const isEditing = el.contentEditable === 'true';
+    if (isEditing) {
+      el.contentEditable = 'false';
+      btn.textContent = '✏️';
+      btn.classList.remove('editing');
+    } else {
+      el.contentEditable = 'true';
+      el.focus();
+      btn.textContent = '✅';
+      btn.classList.add('editing');
+      const range = document.createRange();
+      range.selectNodeContents(el);
+      range.collapse(false);
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+    }
+  }
+
+  // ===== TEMPLATE TOPIK =====
+  function setTopic(text) {
+    const el = document.getElementById('topic');
+    el.value = text;
+    el.focus();
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  // ===== HISTORY =====
+  function saveHistory(topic, threads) {
+    try {
+      const history = JSON.parse(localStorage.getItem('threads_history') || '[]');
+      history.unshift({ id: Date.now(), topic, threads, date: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) });
+      localStorage.setItem('threads_history', JSON.stringify(history.slice(0, 10)));
+      renderHistory();
+    } catch(e) {}
+  }
+
+  function renderHistory() {
+    const history = JSON.parse(localStorage.getItem('threads_history') || '[]');
+    const area = document.getElementById('history-area');
+    const list = document.getElementById('history-list');
+    if (!area || !list) return;
+    if (history.length === 0) { area.style.display = 'none'; return; }
+    area.style.display = 'block';
+    list.innerHTML = '';
+    history.forEach(h => {
+      const card = document.createElement('div');
+      card.className = 'history-card';
+      card.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:start"><div><div class="history-title">' + escHtml(h.topic) + '</div><div class="history-meta">' + h.date + ' · ' + h.threads.length + ' thread</div></div><div style="display:flex;gap:6px"><button class="btn-copy" style="font-size:11px;padding:4px 10px" onclick="loadHistory(' + h.id + ')">Muat</button><button class="btn-copy" style="font-size:11px;padding:4px 10px" onclick="deleteHistory(' + h.id + ')">🗑️</button></div></div>';
+      list.appendChild(card);
+    });
+  }
+
+  function loadHistory(id) {
+    const history = JSON.parse(localStorage.getItem('threads_history') || '[]');
+    const item = history.find(h => h.id === id);
+    if (!item) return;
+    document.getElementById('topic').value = item.topic;
+    renderThreads(item.threads);
+  }
+
+  function deleteHistory(id) {
+    let history = JSON.parse(localStorage.getItem('threads_history') || '[]');
+    history = history.filter(h => h.id !== id);
+    localStorage.setItem('threads_history', JSON.stringify(history));
+    renderHistory();
+  }
+
+  function clearAllHistory() {
+    localStorage.removeItem('threads_history');
+    renderHistory();
+  }
+
+  window.addEventListener('DOMContentLoaded', () => {
+    const savedKey = localStorage.getItem('gemini_api_key');
+    if (savedKey && document.getElementById('api-key-free')) {
+      document.getElementById('api-key-free').value = savedKey;
+      showKeyStatus('✓ API key tersimpan & siap digunakan', true);
+    }
+    renderHistory();
+  });
+
+  function toggleApiVis(mode) {
+    const input = document.getElementById('api-key-' + mode);
+    const btn = document.getElementById('btn-vis-' + mode);
+    if (!input || !btn) return;
+    input.type = input.type === 'password' ? 'text' : 'password';
+    btn.textContent = input.type === 'password' ? 'Lihat' : 'Sembunyikan';
+  }
+
+  // PWA Install
+  let deferredPrompt;
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    const banner = document.getElementById('install-banner');
+    if (banner) banner.style.display = 'flex';
+  });
+
+  const btnInstall = document.getElementById('btn-install');
+  if (btnInstall) {
+    btnInstall.addEventListener('click', async () => {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        deferredPrompt = null;
+        document.getElementById('install-banner').style.display = 'none';
+      } else {
+        // iOS fallback
+        alert('Di iPhone/iPad:\n1. Tap ikon Share (kotak panah atas)\n2. Pilih "Add to Home Screen"\n3. Tap "Add"\n\nTool akan muncul seperti aplikasi di layar utama!');
+      }
+    });
+  }
+
+  // Share functions
+  // Set share URL display
+  window.addEventListener('load', () => {
+    const urlEl = document.getElementById('share-url');
+    if (urlEl && window.location.href.includes('github.io')) {
+      urlEl.textContent = window.location.href;
+    }
+  });
+
+  // Service Worker for offline
+  if ('serviceWorker' in navigator) {
+    const swCode = `
+      self.addEventListener('install', e => self.skipWaiting());
+      self.addEventListener('fetch', e => e.respondWith(fetch(e.request).catch(() => caches.match(e.request))));
+    `;
+    const blob = new Blob([swCode], {type: 'application/javascript'});
+    navigator.serviceWorker.register(URL.createObjectURL(blob));
+  }
+
+</script>
+
+  <!-- Install Banner -->
+  <div id="install-banner" style="display:none;position:fixed;bottom:20px;left:50%;transform:translateX(-50%);width:calc(100% - 40px);max-width:740px;background:linear-gradient(135deg,#1c1c28,#13131a);border:1px solid rgba(124,92,252,0.4);border-radius:16px;padding:16px 20px;z-index:999;box-shadow:0 8px 32px rgba(0,0,0,0.5);display:flex;align-items:center;gap:12px;animation:fadeUp 0.4s ease both">
+    <div style="flex:1">
+      <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:14px;color:#e8e8f0">📲 Install sebagai Aplikasi</div>
+      <div style="font-size:12px;color:#6b6b8a;margin-top:2px">Tambah ke layar utama HP kamu</div>
+    </div>
+    <button id="btn-install" style="padding:8px 16px;background:linear-gradient(135deg,#7c5cfc,#fc5ca0);border:none;border-radius:10px;color:white;font-family:'Syne',sans-serif;font-weight:700;font-size:13px;cursor:pointer;white-space:nowrap">Install</button>
+    <button onclick="document.getElementById('install-banner').style.display='none'" style="padding:8px;background:transparent;border:none;color:#6b6b8a;cursor:pointer;font-size:18px;line-height:1">×</button>
+  </div>
+
+  <div style="text-align:center;padding:24px;font-size:12px;color:var(--muted);border-top:1px solid var(--border);margin-top:40px">
+    Made with ❤️ by <strong style="color:var(--accent)">bangmudik</strong>
+  </div>
+</body>
+</html>
