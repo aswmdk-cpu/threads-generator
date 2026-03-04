@@ -458,37 +458,6 @@
 
   .template-scroll::-webkit-scrollbar { display: none; }
 
-  /* Mode Toggle */
-  .mode-toggle {
-    display: flex;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 100px;
-    padding: 4px;
-    gap: 4px;
-    margin-bottom: 20px;
-  }
-  .mode-btn {
-    flex: 1;
-    padding: 10px 16px;
-    border-radius: 100px;
-    border: none;
-    font-family: 'Syne', sans-serif;
-    font-weight: 700;
-    font-size: 13px;
-    cursor: pointer;
-    transition: all 0.2s;
-    background: transparent;
-    color: var(--muted);
-  }
-  .mode-btn.active {
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    color: white;
-    box-shadow: 0 4px 12px rgba(124,92,252,0.3);
-  }
-  .mode-free { display: block; }
-  .mode-pro { display: none; }
-
   @media (max-width: 560px) {
     .form-row { grid-template-columns: 1fr; }
     .card { padding: 20px; }
@@ -505,16 +474,20 @@
   </header>
 
   <div class="card" id="apikey-card">
-    <div class="section-label">🔑 API Key</div>
-    <div class="form-group" style="margin-bottom:0">
-      <label>OpenRouter API Key</label>
-      <div style="position:relative">
-        <input type="password" id="api-key" placeholder="sk-or-v1-..." style="padding-right:90px" />
-        <button onclick="toggleApiVis()" id="btn-vis" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--muted);font-size:12px;padding:4px 10px;cursor:pointer;font-family:'DM Sans',sans-serif;">Lihat</button>
+    <div class="section-label">🔑 API KEY</div>
+
+    <div id="section-free">
+      <div class="form-group" style="margin-bottom:0">
+        <label>Gemini API Key <span style="color:#4ade80;font-size:11px">✓ Gratis & Reset Harian</span></label>
+        <div style="position:relative">
+          <input type="password" id="api-key-free" placeholder="AIza..." style="padding-right:90px" />
+          <button onclick="toggleApiVis('free')" id="btn-vis-free" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--muted);font-size:12px;padding:4px 10px;cursor:pointer;font-family:'DM Sans',sans-serif;">Lihat</button>
+        </div>
+        <p style="margin-top:8px;font-size:12px;color:var(--muted);">🔒 Dapatkan gratis di <a href="https://aistudio.google.com/apikey" target="_blank" style="color:var(--accent)">aistudio.google.com/apikey</a></p>
       </div>
-      <p style="margin-top:8px;font-size:12px;color:var(--muted);">🔒 Key hanya tersimpan di browser kamu. Dapatkan di <a href="https://openrouter.ai/keys" target="_blank" style="color:var(--accent)">openrouter.ai/keys</a></p>
     </div>
-    </div>
+
+
     <div style="margin-top:12px;display:flex;gap:8px">
       <button onclick="saveApiKey()" style="flex:1;padding:10px;background:linear-gradient(135deg,var(--accent),#15803d);border:none;border-radius:10px;color:white;font-family:'Syne',sans-serif;font-weight:700;font-size:14px;cursor:pointer;">Simpan Key</button>
       <button onclick="clearApiKey()" style="padding:10px 16px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:14px;cursor:pointer;">Hapus</button>
@@ -580,15 +553,9 @@
     <div class="form-group" style="margin-top:16px">
       <label>Model AI</label>
       <select id="ai-model">
-        <!-- Free Models -->
-        <option value="gemini-2.5-flash" selected>🆓 Gemini 2.5 Flash (Gratis)</option>
-        <option value="gemini-2.0-flash">🆓 Gemini 2.0 Flash (Gratis)</option>
-        <option value="gemini-2.0-flash-lite">🆓 Gemini Flash Lite (Gratis Hemat)</option>
-        <!-- Pro Models -->
-        <option value="anthropic/claude-haiku-4-5" disabled>── Pro Models ──</option>
-        <option value="anthropic/claude-haiku-4-5">⚡ Claude Haiku (Pro - Cepat)</option>
-        <option value="anthropic/claude-sonnet-4-5">🧠 Claude Sonnet (Pro - Pintar)</option>
-        <option value="openai/gpt-4o-mini">🤖 GPT-4o Mini (Pro - Hemat)</option>
+        <option value="gemini-2.5-flash" selected>⚡ Gemini 2.5 Flash</option>
+        <option value="gemini-2.0-flash">🌿 Gemini 2.0 Flash</option>
+        <option value="gemini-2.0-flash-lite">✨ Gemini Flash Lite</option>
       </select>
       <p style="margin-top:6px;font-size:11px;color:var(--muted)">💡 Claude Haiku paling cepat. Sonnet lebih pintar tapi lebih lambat.</p>
     </div>
@@ -736,75 +703,47 @@
       ? `Nama produk: ${productName}${productPrice ? ', Harga: ' + productPrice : ''}`
       : shopeeRaw.replace(/https?:\/\/\S+/g, '').trim().slice(0, 120);
 
-    const prompt = `Kamu adalah penulis konten Threads yang jago bercerita. Kamu BUKAN copywriter iklan.
+    const prompt = `Tulis ${count} post Threads bahasa ${lang} tentang: "${topic}".
+${productInfo ? `Produk: ${productInfo}` : ''}
+${shopeeLink ? `Link: ${shopeeLink}` : ''}
+${context ? `Konteks: ${context}` : ''}
 
-Tugas: Buat ${count} post Threads dalam bahasa ${lang} tentang "${topic}".
-${productInfo ? `Produk yang disisipkan: ${productInfo}` : ''}
-${shopeeLink ? `Link produk: ${shopeeLink}` : ''}
-${context ? `Info tambahan dari penulis: ${context}` : ''}
+GAYA: Tone ${tone}. Hook: ${hook}. ${extraText}
 
-GAYA PENULISAN:
-- Tone: ${tone}
-- Hook post pertama: ${hook}
-- ${extraText}
+ATURAN:
+- Tiap post MAX 500 karakter, singkat & to the point
+- Kalimat pendek, 1-2 baris per kalimat, tidak bertele-tele
+- Post 1: hook/masalah saja, belum sebut produk
+- Post tengah: sebut produk natural ("nemu [nama]", "ternyata ada...")
+- DILARANG: "beli sekarang", "promo", "klik link", "order segera"
+- CTA terakhir: santai seperti rekomendasi teman
+${shopeeLink ? `- Sisipkan ${shopeeLink} di post terakhir secara natural` : '- Arahkan ke "link di bio"'}
 
-ATURAN KERAS (wajib diikuti):
-1. Setiap post MAKSIMAL 500 karakter — hitung ketat, jangan lebih
-2. Post 1: cerita/hook saja, BELUM sebut produk sama sekali
-3. Post tengah: sebut produk seperti "nemu produk ini", "ternyata ada [nama produk]" — bukan iklan
-4. DILARANG keras: "beli sekarang", "promo terbatas", "klik link", "dapatkan sekarang", "segera order"
-5. CTA terakhir harus terasa seperti rekomendasi teman, bukan sales: contoh "aku taruh linknya di sini kalau mau liat" atau "ini yang aku pake kalau penasaran"
-${shopeeLink ? `6. Sisipkan link ${shopeeLink} di post terakhir secara natural dalam kalimat` : '6. Arahkan ke "link di bio" di post terakhir'}
-
-ALUR WAJIB: Masalah relatable → Cerita pribadi → Nemu solusi (produk) → Hasil nyata → Rekomendasi santai
-
-Balas HANYA dalam format JSON (tanpa backtick, tanpa komentar apapun):
-{"threads":[{"num":1,"text":"..."},{"num":2,"text":"..."}]}`;
+ALUR: Masalah → Pengalaman → Solusi → Hasil → Rekomendasi santai`;
 
     try {
       const model = document.getElementById('ai-model').value;
 
-      const fullPrompt = `Buat konten sesuai instruksi berikut dan kembalikan dalam format JSON:
-{"threads":[{"num":1,"text":"..."},{"num":2,"text":"..."}]}
+      const fullPrompt = `${prompt}
 
-Setiap "text" maksimal 500 karakter, tidak boleh mengandung newline.
-
-${prompt}`;
+OUTPUT: JSON saja, tanpa teks lain.
+{"threads":[{"num":1,"text":"..."},{"num":2,"text":"..."}]}`;
 
             const apiKey = getApiKey();
-      const toolMode = localStorage.getItem('tool_mode') || 'free';
-      if (!apiKey) throw new Error(toolMode === 'free' ? 'Gemini API key belum diisi!' : 'OpenRouter API key belum diisi!');
+      if (!apiKey) throw new Error('Gemini API key belum diisi! Isi dulu di bagian atas.');
 
-      let data, res;
-      if (toolMode === 'free') {
-        // Gemini API
-        const payload = {
-          contents: [{ parts: [{ text: fullPrompt }] }],
-          generationConfig: { maxOutputTokens: 2048, temperature: 0.8, responseMimeType: 'application/json' }
-        };
-        res = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
-          { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }
-        );
-        data = await res.json();
-        if (!res.ok) throw new Error(data.error?.message || 'Gemini error.');
-      } else {
-        // OpenRouter API
-        res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + apiKey,
-            'HTTP-Referer': 'https://aswmdk-cpu.github.io',
-            'X-Title': 'Threads Generator'
-          },
-          body: JSON.stringify({ model, max_tokens: 2048, messages: [{ role: 'user', content: fullPrompt }] })
-        });
-        data = await res.json();
-        if (!res.ok) throw new Error(data.error?.message || 'OpenRouter error.');
-      }
+      const payload = {
+        contents: [{ parts: [{ text: fullPrompt }] }],
+        generationConfig: { maxOutputTokens: 2048, temperature: 0.8, responseMimeType: 'application/json' }
+      };
+      const res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+        { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }
+      );
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error?.message || 'Gemini error.');
 
-      let raw = (localStorage.getItem('tool_mode') || 'free') === 'free' ? (data.candidates?.[0]?.content?.parts?.[0]?.text || '') : (data.choices?.[0]?.message?.content || '');
+      let raw = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
       const count = parseInt(document.getElementById('count').value);
       let parsed;
 
@@ -986,18 +925,16 @@ ${prompt}`;
     try {
       const prompt = `Buat SATU post Threads dalam bahasa ${lang} dengan tone ${tone} tentang topik: "${topic}". Post ini adalah bagian ke-${threadNum} dari sebuah utas. Maksimal 500 karakter. Balas HANYA dengan teks post-nya saja, tanpa penjelasan apapun.`;
       
-      const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + getApiKey(),
-          'HTTP-Referer': 'https://aswmdk-cpu.github.io',
-          'X-Title': 'Threads Generator'
-        },
-        body: JSON.stringify({ model, max_tokens: 300, messages: [{ role: 'user', content: prompt }] })
-      });
+      const regenPayload = {
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: { maxOutputTokens: 600, temperature: 0.9 }
+      };
+      const res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${getApiKey()}`,
+        { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(regenPayload) }
+      );
       const data = await res.json();
-      const newText = data.choices?.[0]?.message?.content?.trim() || '';
+      const newText = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '';
       if (newText) {
         el.textContent = newText;
         const newLen = newText.length;
@@ -1041,9 +978,7 @@ ${prompt}`;
   }
 
   // API Key management
-  function getApiKey() {
-    return localStorage.getItem('anthropic_api_key') || document.getElementById('api-key').value.trim();
-  }
+  function getApiKey() { return localStorage.getItem('gemini_api_key') || ''; }
 
   function saveApiKey() {
     const key = document.getElementById('api-key').value.trim();
@@ -1057,7 +992,8 @@ ${prompt}`;
 
   function clearApiKey() {
     localStorage.removeItem('anthropic_api_key');
-    document.getElementById('api-key').value = '';
+    if (document.getElementById('api-key-free')) document.getElementById('api-key-free').value = '';
+    if (document.getElementById('api-key-pro')) document.getElementById('api-key-pro').value = '';
     showKeyStatus('Key dihapus dari browser.', false);
   }
 
@@ -1151,44 +1087,13 @@ ${prompt}`;
   }
 
   window.addEventListener('DOMContentLoaded', () => {
-    const savedMode = localStorage.getItem('tool_mode') || 'free';
-    switchMode(savedMode);
-    const savedFree = localStorage.getItem('gemini_api_key');
-    const savedPro = localStorage.getItem('anthropic_api_key');
-    if (savedFree && document.getElementById('api-key-free')) document.getElementById('api-key-free').value = savedFree;
-    if (savedPro && document.getElementById('api-key-pro')) document.getElementById('api-key-pro').value = savedPro;
-    if (savedFree || savedPro) showKeyStatus('✓ API key tersimpan & siap digunakan', true);
+    const savedKey = localStorage.getItem('gemini_api_key');
+    if (savedKey && document.getElementById('api-key-free')) {
+      document.getElementById('api-key-free').value = savedKey;
+      showKeyStatus('✓ API key tersimpan & siap digunakan', true);
+    }
     renderHistory();
   });
-
-
-
-  function switchMode(mode) {
-    localStorage.setItem('tool_mode', mode);
-    const isFree = mode === 'free';
-    const secFree = document.getElementById('section-free');
-    const secPro = document.getElementById('section-pro');
-    const btnFree = document.getElementById('btn-free');
-    const btnPro = document.getElementById('btn-pro');
-    if (secFree) secFree.style.display = isFree ? 'block' : 'none';
-    if (secPro) secPro.style.display = isFree ? 'none' : 'block';
-    if (btnFree) btnFree.classList.toggle('active', isFree);
-    if (btnPro) btnPro.classList.toggle('active', !isFree);
-    const select = document.getElementById('ai-model');
-    if (select) {
-      for (let i = 0; i < select.options.length; i++) {
-        const v = select.options[i].value;
-        const isGemini = v.startsWith('gemini');
-        const isProModel = !isGemini && v !== '';
-        if (isFree) {
-          select.options[i].disabled = isProModel;
-        } else {
-          select.options[i].disabled = isGemini;
-        }
-      }
-      select.value = isFree ? 'gemini-2.5-flash' : 'anthropic/claude-haiku-4-5';
-    }
-  }
 
   function toggleApiVis(mode) {
     const input = document.getElementById('api-key-' + mode);
