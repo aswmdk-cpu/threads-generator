@@ -470,17 +470,18 @@
     <div class="logo-badge">✦ AI-Powered</div>
     <h1>Threads Utas<br>Generator</h1>
     <p class="subtitle">Buat utas viral dalam hitungan detik</p>
+    <p style="margin-top:8px;font-size:13px;color:var(--accent);font-weight:600;opacity:0.8">by bangmudik</p>
   </header>
 
   <div class="card" id="apikey-card">
     <div class="section-label">🔑 API Key</div>
     <div class="form-group" style="margin-bottom:0">
-      <label>Anthropic API Key</label>
+      <label>Gemini API Key</label>
       <div style="position:relative">
-        <input type="password" id="api-key" placeholder="sk-or-v1-..." style="padding-right:90px" />
+        <input type="password" id="api-key" placeholder="AIza..." style="padding-right:90px" />
         <button onclick="toggleApiVis()" id="btn-vis" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--muted);font-size:12px;padding:4px 10px;cursor:pointer;font-family:'DM Sans',sans-serif;">Lihat</button>
       </div>
-      <p style="margin-top:8px;font-size:12px;color:var(--muted);">🔒 Key hanya tersimpan di browser kamu. Dapatkan di <a href="https://openrouter.ai/keys" target="_blank" style="color:var(--accent)">openrouter.ai/keys</a></p>
+      <p style="margin-top:8px;font-size:12px;color:var(--muted);">🔒 Key hanya tersimpan di browser kamu. Dapatkan di <a href="https://aistudio.google.com/apikey" target="_blank" style="color:var(--accent)">aistudio.google.com/apikey</a></p>
     </div>
     <div style="margin-top:12px;display:flex;gap:8px">
       <button onclick="saveApiKey()" style="flex:1;padding:10px;background:linear-gradient(135deg,var(--accent),#15803d);border:none;border-radius:10px;color:white;font-family:'Syne',sans-serif;font-weight:700;font-size:14px;cursor:pointer;">Simpan Key</button>
@@ -514,9 +515,9 @@
     </div>
 
     <div class="form-group">
-      <label>🛍️ Info Produk Shopee</label>
-      <textarea id="shopee-raw" placeholder="Paste info produk dari Shopee di sini. Bisa dari tombol Bagikan:&#10;&#10;Temukan CUTOFF Clark Kemeja Pria Oxford seharga Rp154.560. Dapatkan sekarang di Shopee! https://s.shopee.co.id/xxx&#10;&#10;Atau ketik manual:&#10;Nama: Serum Vitamin C Somethinc&#10;Harga: Rp89.000&#10;Keunggulan: cerahkan kulit, rating 4.9, 10rb+ terjual" style="height:120px;font-size:13px"></textarea>
-      <p style="margin-top:6px;font-size:11px;color:var(--muted)">💡 Copy dari tombol <strong>Bagikan</strong> di app Shopee atau ketik manual — AI akan otomatis baca info produknya</p>
+      <label>🛍️ Info Produk</label>
+      <textarea id="shopee-raw" placeholder="Ketik manual info produk:&#10;Nama: Serum Vitamin C Somethinc&#10;Harga: Rp89.000&#10;Keunggulan: cerahkan kulit, cocok kulit sensitif, rating 4.9&#10;&#10;Atau paste langsung dari tombol Bagikan Shopee:&#10;Temukan Serum Vitamin C seharga Rp89.000. https://s.shopee.co.id/xxx" style="height:130px;font-size:13px"></textarea>
+      <p style="margin-top:6px;font-size:11px;color:var(--muted)">✏️ Ketik manual di atas <strong>atau</strong> paste dari tombol <strong>Bagikan</strong> di app Shopee — link otomatis terbaca</p>
     </div>
 
     <div class="form-group">
@@ -547,9 +548,9 @@
     <div class="form-group" style="margin-top:16px">
       <label>Model AI</label>
       <select id="ai-model">
-        <option value="anthropic/claude-haiku-4-5" selected>⚡ Claude Haiku (Recommended)</option>
-        <option value="openai/gpt-4o-mini">🤖 GPT-4o Mini (Alternatif)</option>
-        <option value="google/gemini-2.0-flash-001">✨ Gemini 2.0 Flash (Alternatif)</option>
+        <option value="gemini-2.0-flash" selected>⚡ Gemini 2.0 Flash (Gratis & Cepat)</option>
+        <option value="gemini-1.5-flash">✨ Gemini 1.5 Flash (Alternatif)</option>
+        <option value="gemini-1.5-pro">🧠 Gemini 1.5 Pro (Lebih Pintar)</option>
       </select>
       <p style="margin-top:6px;font-size:11px;color:var(--muted)">💡 Kalau satu model error, coba ganti ke model lain</p>
     </div>
@@ -723,38 +724,29 @@ Balas HANYA dalam format JSON (tanpa backtick, tanpa komentar apapun):
 {"threads":[{"num":1,"text":"..."},{"num":2,"text":"..."}]}`;
 
     try {
-      const payload = {
-        model: document.getElementById('ai-model').value,
-        max_tokens: 2000,
-        messages: [
-          { 
-            role: 'user', 
-            content: `INSTRUKSI PENTING: Balas HANYA dengan JSON murni. JANGAN tambahkan teks apapun sebelum atau sesudah JSON. JANGAN gunakan markdown atau backtick.
+      const model = document.getElementById('ai-model').value;
+      const fullPrompt = `INSTRUKSI PENTING: Balas HANYA dengan JSON murni. JANGAN tambahkan teks apapun sebelum atau sesudah JSON. JANGAN gunakan markdown atau backtick.
 
 Format JSON yang HARUS kamu ikuti persis:
 {"threads":[{"num":1,"text":"isi thread 1"},{"num":2,"text":"isi thread 2"}]}
 
 Sekarang buat konten berikut:
-${prompt}`
-          }
-        ]
-      };
-      const headers = {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + getApiKey(),
-        'HTTP-Referer': 'https://aswmdk-cpu.github.io',
-        'X-Title': 'Threads Affiliate Generator'
+${prompt}`;
+
+      const payload = {
+        contents: [{ parts: [{ text: fullPrompt }] }],
+        generationConfig: { maxOutputTokens: 1500, temperature: 0.9 }
       };
 
-      const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-        method: 'POST', headers, body: JSON.stringify(payload)
-      });
+      const res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${getApiKey()}`,
+        { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }
+      );
 
       const data = await res.json();
       if (!res.ok) throw new Error(data.error?.message || 'API error');
-      
-      // OpenRouter returns choices format
-      let raw = data.choices?.[0]?.message?.content || '';
+
+      let raw = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
       const count = parseInt(document.getElementById('count').value);
       let parsed;
 
@@ -905,18 +897,16 @@ ${prompt}`
     try {
       const prompt = `Buat SATU post Threads dalam bahasa ${lang} dengan tone ${tone} tentang topik: "${topic}". Post ini adalah bagian ke-${threadNum} dari sebuah utas. Maksimal 500 karakter. Balas HANYA dengan teks post-nya saja, tanpa penjelasan apapun.`;
       
-      const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + getApiKey(),
-          'HTTP-Referer': 'https://aswmdk-cpu.github.io',
-          'X-Title': 'Threads Affiliate Generator'
-        },
-        body: JSON.stringify({ model, max_tokens: 300, messages: [{ role: 'user', content: prompt }] })
-      });
+      const regenPayload = {
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: { maxOutputTokens: 300, temperature: 0.9 }
+      };
+      const res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${getApiKey()}`,
+        { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(regenPayload) }
+      );
       const data = await res.json();
-      const newText = data.choices?.[0]?.message?.content?.trim() || '';
+      const newText = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '';
       if (newText) {
         el.textContent = newText;
         const newLen = newText.length;
@@ -966,8 +956,8 @@ ${prompt}`
 
   function saveApiKey() {
     const key = document.getElementById('api-key').value.trim();
-    if (!key.startsWith('sk-or-')) {
-      showKeyStatus('Format key tidak valid. Harus dimulai dengan sk-or-', false);
+    if (!key.startsWith('AIza')) {
+      showKeyStatus('Format key tidak valid. Harus dimulai dengan AIza', false);
       return;
     }
     localStorage.setItem('anthropic_api_key', key);
@@ -1144,5 +1134,11 @@ ${prompt}`
     <button onclick="document.getElementById('install-banner').style.display='none'" style="padding:8px;background:transparent;border:none;color:#6b6b8a;cursor:pointer;font-size:18px;line-height:1">×</button>
   </div>
 
+  <div style="text-align:center;padding:24px;font-size:12px;color:var(--muted);border-top:1px solid var(--border);margin-top:40px">
+    Made with ❤️ by <strong style="color:var(--accent)">bangmudik</strong>
+  </div>
+  <div style="text-align:center;padding:24px;font-size:12px;color:var(--muted);border-top:1px solid var(--border);margin-top:20px">
+    Made with ❤️ by <strong style="color:var(--accent)">bangmudik</strong>
+  </div>
 </body>
 </html>
