@@ -511,6 +511,11 @@
         <div class="template-pill" onclick="setTopic('Produk perawatan kulit yang akhirnya bikin percaya diri, sudah coba banyak merek ini yang paling cocok')">✨ Skincare Cocok</div>
         <div class="template-pill" onclick="setTopic('Peralatan dapur yang bikin memasak lebih cepat dan tidak capek, game changer untuk ibu rumah tangga')">🍳 Game Changer Dapur</div>
         <div class="template-pill" onclick="setTopic('Cara dapat produk bagus dengan harga murah di Shopee, tips belanja cerdas yang selalu aku pakai')">🎟️ Tips Belanja Cerdas</div>
+        <div class="template-pill" onclick="setTopic('Research seminggu cari produk terbaik di kategori ini, ini hasilnya yang paling worth it dibeli')">🔬 Review Roundup</div>
+        <div class="template-pill" onclick="setTopic('5 produk yang wajib dibeli sebelum lebaran, sudah aku cek satu per satu mana yang terbaik')">📋 List Wajib Beli</div>
+        <div class="template-pill" onclick="setTopic('Perbandingan produk mahal vs murah di kategori yang sama, mana yang lebih worth it')">⚖️ Mahal vs Murah</div>
+        <div class="template-pill" onclick="setTopic('Produk yang selalu habis duluan setiap lebaran, ini yang biasanya paling dicari dan recommended')">🎁 Rekomendasi Lebaran</div>
+        <div class="template-pill" onclick="setTopic('Belanja bulanan rumah tangga yang paling sering dibeli ulang, list lengkap dengan harga terbaik')">🛒 Belanja Bulanan</div>
       </div>
     </div>
 
@@ -703,6 +708,8 @@
       ? `Nama produk: ${productName}${productPrice ? ', Harga: ' + productPrice : ''}`
       : shopeeRaw.replace(/https?:\/\/\S+/g, '').trim().slice(0, 120);
 
+    const isRoundup = /roundup|list|rekomendasi|research|perbandingan|wajib beli|belanja bulanan|lebaran/i.test(topic);
+
     const prompt = `Tulis ${count} post Threads bahasa ${lang} tentang: "${topic}".
 ${productInfo ? `Produk: ${productInfo}` : ''}
 ${shopeeLink ? `Link: ${shopeeLink}` : ''}
@@ -710,16 +717,21 @@ ${context ? `Konteks: ${context}` : ''}
 
 GAYA: Tone ${tone}. Hook: ${hook}. ${extraText}
 
+${isRoundup ? `FORMAT ROUNDUP/LIST:
+- Post 1: hook relatable + situasi (misal "seminggu research buat ini 👇")
+- Post 2-3: list produk dengan nama, harga singkat, 1 kalimat keunggulan
+- Boleh format: "1. Nama — Rp... → keunggulan singkat"
+- Post terakhir: kesimpulan + arahkan ke link di komen/bio` :
+`FORMAT STORYTELLING:
+- Post 1: hook/masalah, belum sebut produk
+- Post tengah: sebut produk natural ("nemu [nama]", "ternyata ada...")
+- Post terakhir: rekomendasi santai seperti teman`}
+
 ATURAN:
 - Tiap post MAX 500 karakter, singkat & to the point
-- Kalimat pendek, 1-2 baris per kalimat, tidak bertele-tele
-- Post 1: hook/masalah saja, belum sebut produk
-- Post tengah: sebut produk natural ("nemu [nama]", "ternyata ada...")
+- Kalimat pendek, tidak bertele-tele
 - DILARANG: "beli sekarang", "promo", "klik link", "order segera"
-- CTA terakhir: santai seperti rekomendasi teman
-${shopeeLink ? `- Sisipkan ${shopeeLink} di post terakhir secara natural` : '- Arahkan ke "link di bio"'}
-
-ALUR: Masalah → Pengalaman → Solusi → Hasil → Rekomendasi santai`;
+${shopeeLink ? `- Sisipkan ${shopeeLink} di post terakhir secara natural` : '- Arahkan ke "link di bio" atau "link di komen"'}`;
 
     try {
       const model = document.getElementById('ai-model').value;
@@ -923,11 +935,16 @@ OUTPUT: JSON saja, tanpa teks lain.
     const model = document.getElementById('ai-model').value;
 
     try {
-      const prompt = `Buat SATU post Threads dalam bahasa ${lang} dengan tone ${tone} tentang topik: "${topic}". Post ini adalah bagian ke-${threadNum} dari sebuah utas. Maksimal 500 karakter. Balas HANYA dengan teks post-nya saja, tanpa penjelasan apapun.`;
-      
+      const totalThreads = parseInt(document.getElementById('count').value);
+      const prompt = `Tulis SATU post Threads (bagian ${threadNum} dari ${totalThreads}) dalam bahasa ${lang}.
+Topik: "${topic}"
+Tone: ${tone}
+MAX 500 karakter. Kalimat pendek & to the point. Harus kalimat LENGKAP, tidak terpotong.
+Balas HANYA teks post-nya saja, tanpa penjelasan apapun.`;
+
       const regenPayload = {
         contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: { maxOutputTokens: 600, temperature: 0.9 }
+        generationConfig: { maxOutputTokens: 1024, temperature: 0.9 }
       };
       const res = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${getApiKey()}`,
