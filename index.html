@@ -514,28 +514,14 @@
     </div>
 
     <div class="form-group">
-      <label>Nama Produk</label>
-      <input type="text" id="product-name" placeholder="Contoh: Serum Vitamin C Somethinc, Blender Portable Xiaomi" />
-    </div>
-
-    <div class="form-row">
-      <div class="form-group" style="margin-bottom:0">
-        <label>Harga Produk</label>
-        <input type="text" id="product-price" placeholder="Contoh: Rp89.000" />
-      </div>
-      <div class="form-group" style="margin-bottom:0">
-        <label>Platform</label>
-        <select id="platform">
-          <option value="Shopee" selected>🛍️ Shopee</option>
-          <option value="Tokopedia">🟢 Tokopedia</option>
-          <option value="TikTok Shop">🎵 TikTok Shop</option>
-        </select>
-      </div>
+      <label>🛍️ Info Produk Shopee</label>
+      <textarea id="shopee-raw" placeholder="Paste info produk dari Shopee di sini. Bisa dari tombol Bagikan:&#10;&#10;Temukan CUTOFF Clark Kemeja Pria Oxford seharga Rp154.560. Dapatkan sekarang di Shopee! https://s.shopee.co.id/xxx&#10;&#10;Atau ketik manual:&#10;Nama: Serum Vitamin C Somethinc&#10;Harga: Rp89.000&#10;Keunggulan: cerahkan kulit, rating 4.9, 10rb+ terjual" style="height:120px;font-size:13px"></textarea>
+      <p style="margin-top:6px;font-size:11px;color:var(--muted)">💡 Copy dari tombol <strong>Bagikan</strong> di app Shopee atau ketik manual — AI akan otomatis baca info produknya</p>
     </div>
 
     <div class="form-group">
-      <label>Keunggulan Produk (opsional)</label>
-      <textarea id="context" placeholder="Contoh: terbukti cerahkan kulit 2 minggu, sudah 10rb+ terjual, rating 4.9, harga promo hari ini..."></textarea>
+      <label>Keunggulan Tambahan (opsional)</label>
+      <textarea id="context" placeholder="Tambahan info yang ingin ditonjolkan: promo hari ini, pengalaman pribadi pakai produk, dll..." style="height:80px"></textarea>
     </div>
 
     <div class="form-row">
@@ -687,25 +673,35 @@
     const count = document.getElementById('count').value;
     const lang = document.getElementById('lang').value;
     const context = document.getElementById('context').value.trim();
+    const shopeeRaw = document.getElementById('shopee-raw')?.value.trim() || '';
     const tone = getSelected('tone-group')[0] || 'santai dan relatable';
     const hook = getSelected('hook-group')[0] || 'pertanyaan provokatif';
     const extras = getSelected('extra-group');
 
     const extraText = extras.length ? `Gunakan elemen: ${extras.join(', ')}.` : '';
 
-    const prompt = `Kamu adalah copywriter viral media sosial spesialis platform Threads (Meta).
+    // Extract link from shopee share text
+    const linkMatch = shopeeRaw.match(/https?:\/\/\S+/);
+    const shopeeLink = linkMatch ? linkMatch[0] : '';
+
+    const prompt = `Kamu adalah copywriter viral media sosial spesialis konten affiliate di platform Threads (Meta).
 
 Buat utas Threads sebanyak ${count} post dalam bahasa ${lang} tentang: "${topic}"
-${context ? `\nKonteks/info tambahan: ${context}` : ''}
 
-Aturan:
+${shopeeRaw ? `INFO PRODUK (ekstrak nama produk, harga, dan detail dari teks ini):
+"${shopeeRaw}"` : ''}
+${context ? `Info tambahan: ${context}` : ''}
+
+ATURAN WAJIB:
 - Tone: ${tone}
-- Pembuka (post 1) pakai hook: ${hook}
+- Pembuka (post 1) pakai hook: ${hook} — JANGAN sebut nama produk atau harga di post pertama
 - ${extraText}
 - Setiap post MAKSIMAL 500 karakter
-- Post pertama harus langsung menarik perhatian
-- Alur yang mengalir dan membangun penasaran
-- Post terakhir berupa kesimpulan atau CTA
+- Tulis seperti pengalaman pribadi yang genuine, BUKAN iklan
+- Selipkan nama produk dan harga secara natural di tengah cerita (bukan di awal)
+- JANGAN gunakan kata "promo", "beli sekarang", "diskon" yang terasa hard selling
+- Post terakhir: arahkan ke link secara natural${shopeeLink ? `, gunakan link ini: ${shopeeLink}` : ' (arahkan ke link di bio)'}
+- Alur: Masalah → Pengalaman → Solusi (produk) → Bukti → CTA natural
 
 Balas HANYA dalam format JSON seperti ini (tanpa backtick, tanpa komentar):
 {"threads":[{"num":1,"text":"..."},{"num":2,"text":"..."}]}`;
@@ -731,7 +727,7 @@ ${prompt}`
         'Content-Type': 'application/json',
         'Authorization': 'Bearer ' + getApiKey(),
         'HTTP-Referer': 'https://aswmdk-cpu.github.io',
-        'X-Title': 'Threads Utas Generator'
+        'X-Title': 'Threads Affiliate Generator'
       };
 
       const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
@@ -899,7 +895,7 @@ ${prompt}`
           'Content-Type': 'application/json',
           'Authorization': 'Bearer ' + getApiKey(),
           'HTTP-Referer': 'https://aswmdk-cpu.github.io',
-          'X-Title': 'Threads Utas Generator'
+          'X-Title': 'Threads Affiliate Generator'
         },
         body: JSON.stringify({ model, max_tokens: 300, messages: [{ role: 'user', content: prompt }] })
       });
@@ -1102,21 +1098,6 @@ ${prompt}`
   }
 
   // Share functions
-  function shareWA() {
-    const url = window.location.href.includes('github.io') ? window.location.href : 'Upload ke GitHub Pages dulu ya!';
-    const msg = encodeURIComponent('Coba tool AI buat bikin utas Threads otomatis ini! 🔥\n\n' + url);
-    window.open('https://wa.me/?text=' + msg, '_blank');
-  }
-
-  function copyLink() {
-    const url = window.location.href;
-    navigator.clipboard.writeText(url).then(() => {
-      const btn = document.getElementById('btn-copy-link');
-      btn.textContent = '✓ Tersalin!';
-      setTimeout(() => btn.textContent = '🔗 Copy Link', 2000);
-    });
-  }
-
   // Set share URL display
   window.addEventListener('load', () => {
     const urlEl = document.getElementById('share-url');
@@ -1147,24 +1128,5 @@ ${prompt}`
     <button onclick="document.getElementById('install-banner').style.display='none'" style="padding:8px;background:transparent;border:none;color:#6b6b8a;cursor:pointer;font-size:18px;line-height:1">×</button>
   </div>
 
-  <!-- Share Card -->
-  <div style="max-width:780px;margin:0 auto 40px;padding:0 20px;position:relative;z-index:1">
-    <div style="background:#13131a;border:1px solid #2a2a3d;border-radius:20px;padding:24px;text-align:center">
-      <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:16px;margin-bottom:8px">📤 Bagikan ke Teman</div>
-      <div style="font-size:13px;color:#6b6b8a;margin-bottom:16px">Biar teman kamu bisa pakai tool ini juga</div>
-      <div style="background:#1c1c28;border:1px solid #2a2a3d;border-radius:10px;padding:10px 14px;font-size:13px;color:#a0a0b8;margin-bottom:12px;word-break:break-all" id="share-url">Upload ke GitHub Pages dulu untuk dapat link 🔗</div>
-      <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
-        <button onclick="shareWA()" style="padding:10px 20px;background:#25D366;border:none;border-radius:10px;color:white;font-family:'Syne',sans-serif;font-weight:700;font-size:13px;cursor:pointer">💬 Share WhatsApp</button>
-        <button onclick="copyLink()" style="padding:10px 20px;background:#1c1c28;border:1px solid #2a2a3d;border-radius:10px;color:#e8e8f0;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer" id="btn-copy-link">🔗 Copy Link</button>
-      </div>
-      <div style="margin-top:16px;padding:12px;background:rgba(22,163,74,0.08);border:1px solid rgba(22,163,74,0.2);border-radius:10px;font-size:12px;color:#a0a0b8;text-align:left">
-        <strong style="color:#86efac">📌 Cara dapat link permanen:</strong><br>
-        1. Buka <a href="https://github.com" target="_blank" style="color:#16a34a">github.com</a> → daftar gratis<br>
-        2. Buat repo baru → upload file ini sebagai <strong>index.html</strong><br>
-        3. Settings → Pages → pilih branch main → Save<br>
-        4. Dapat link: <strong>namakamu.github.io/nama-repo</strong>
-      </div>
-    </div>
-  </div>
 </body>
 </html>
