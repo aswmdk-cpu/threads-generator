@@ -680,30 +680,46 @@
 
     const extraText = extras.length ? `Gunakan elemen: ${extras.join(', ')}.` : '';
 
-    // Extract link from shopee share text
+    // Parse Shopee share text - extract only what's needed
     const linkMatch = shopeeRaw.match(/https?:\/\/\S+/);
     const shopeeLink = linkMatch ? linkMatch[0] : '';
 
-    const prompt = `Kamu adalah copywriter viral media sosial spesialis konten affiliate di platform Threads (Meta).
+    // Extract product name - from "Temukan X seharga" or "Nama: X" pattern
+    let productName = '';
+    let productPrice = '';
+    const nameMatch = shopeeRaw.match(/Temukan\s+(.+?)\s+seharga/i) || shopeeRaw.match(/Nama:\s*(.+)/i);
+    const priceMatch = shopeeRaw.match(/seharga\s+(Rp[\d.,]+)/i) || shopeeRaw.match(/Harga:\s*(Rp[\d.,]+)/i) || shopeeRaw.match(/(Rp[\d.,]+)/);
+    if (nameMatch) productName = nameMatch[1].trim();
+    if (priceMatch) productPrice = priceMatch[1].trim();
 
-Buat utas Threads sebanyak ${count} post dalam bahasa ${lang} tentang: "${topic}"
+    // If can't parse, use raw but truncated
+    const productInfo = productName 
+      ? `Nama produk: ${productName}${productPrice ? ', Harga: ' + productPrice : ''}`
+      : shopeeRaw.replace(/https?:\/\/\S+/g, '').trim().slice(0, 120);
 
-${shopeeRaw ? `INFO PRODUK (ekstrak nama produk, harga, dan detail dari teks ini):
-"${shopeeRaw}"` : ''}
-${context ? `Info tambahan: ${context}` : ''}
+    const prompt = `Kamu adalah penulis konten Threads yang jago bercerita. Kamu BUKAN copywriter iklan.
 
-ATURAN WAJIB:
+Tugas: Buat ${count} post Threads dalam bahasa ${lang} tentang "${topic}".
+${productInfo ? `Produk yang disisipkan: ${productInfo}` : ''}
+${shopeeLink ? `Link produk: ${shopeeLink}` : ''}
+${context ? `Info tambahan dari penulis: ${context}` : ''}
+
+GAYA PENULISAN:
 - Tone: ${tone}
-- Pembuka (post 1) pakai hook: ${hook} — JANGAN sebut nama produk atau harga di post pertama
+- Hook post pertama: ${hook}
 - ${extraText}
-- Setiap post MAKSIMAL 500 karakter
-- Tulis seperti pengalaman pribadi yang genuine, BUKAN iklan
-- Selipkan nama produk dan harga secara natural di tengah cerita (bukan di awal)
-- JANGAN gunakan kata "promo", "beli sekarang", "diskon" yang terasa hard selling
-- Post terakhir: arahkan ke link secara natural${shopeeLink ? `, gunakan link ini: ${shopeeLink}` : ' (arahkan ke link di bio)'}
-- Alur: Masalah → Pengalaman → Solusi (produk) → Bukti → CTA natural
 
-Balas HANYA dalam format JSON seperti ini (tanpa backtick, tanpa komentar):
+ATURAN KERAS (wajib diikuti):
+1. Setiap post MAKSIMAL 500 karakter — hitung ketat, jangan lebih
+2. Post 1: cerita/hook saja, BELUM sebut produk sama sekali
+3. Post tengah: sebut produk seperti "nemu produk ini", "ternyata ada [nama produk]" — bukan iklan
+4. DILARANG keras: "beli sekarang", "promo terbatas", "klik link", "dapatkan sekarang", "segera order"
+5. CTA terakhir harus terasa seperti rekomendasi teman, bukan sales: contoh "aku taruh linknya di sini kalau mau liat" atau "ini yang aku pake kalau penasaran"
+${shopeeLink ? `6. Sisipkan link ${shopeeLink} di post terakhir secara natural dalam kalimat` : '6. Arahkan ke "link di bio" di post terakhir'}
+
+ALUR WAJIB: Masalah relatable → Cerita pribadi → Nemu solusi (produk) → Hasil nyata → Rekomendasi santai
+
+Balas HANYA dalam format JSON (tanpa backtick, tanpa komentar apapun):
 {"threads":[{"num":1,"text":"..."},{"num":2,"text":"..."}]}`;
 
     try {
