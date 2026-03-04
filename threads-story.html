@@ -520,14 +520,42 @@
     </div>
 
     <div class="form-group">
-      <label>🛍️ Info Produk</label>
-      <textarea id="shopee-raw" placeholder="Ketik manual info produk:&#10;Nama: Serum Vitamin C Somethinc&#10;Harga: Rp89.000&#10;Keunggulan: cerahkan kulit, cocok kulit sensitif, rating 4.9&#10;&#10;Atau paste langsung dari tombol Bagikan Shopee:&#10;Temukan Serum Vitamin C seharga Rp89.000. https://s.shopee.co.id/xxx" style="height:130px;font-size:13px"></textarea>
-      <p style="margin-top:6px;font-size:11px;color:var(--muted)">✏️ Ketik manual di atas <strong>atau</strong> paste dari tombol <strong>Bagikan</strong> di app Shopee — link otomatis terbaca</p>
+      <label>💬 Format Cerita</label>
+      <div class="pill-group" id="format-group">
+        <div class="pill active" data-val="narasi">📝 Narasi</div>
+        <div class="pill" data-val="dialog">💬 Dialog</div>
+        <div class="pill" data-val="campuran narasi dan dialog">🔀 Campuran</div>
+      </div>
+    </div>
+
+    <div class="form-group" id="karakter-group" style="display:none">
+      <label>👥 Karakter (untuk Dialog)</label>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px" id="emoji-picker">
+        <button type="button" onclick="addKarakter('🧕','Aku/Istri')" style="padding:6px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:20px;color:var(--text);font-size:13px;cursor:pointer">🧕 Istri</button>
+        <button type="button" onclick="addKarakter('👱','Suami')" style="padding:6px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:20px;color:var(--text);font-size:13px;cursor:pointer">👱 Suami</button>
+        <button type="button" onclick="addKarakter('👶','Anak')" style="padding:6px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:20px;color:var(--text);font-size:13px;cursor:pointer">👶 Anak</button>
+        <button type="button" onclick="addKarakter('👵','Mertua')" style="padding:6px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:20px;color:var(--text);font-size:13px;cursor:pointer">👵 Mertua</button>
+        <button type="button" onclick="addKarakter('👫','Teman')" style="padding:6px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:20px;color:var(--text);font-size:13px;cursor:pointer">👫 Teman</button>
+        <button type="button" onclick="addKarakter('👨‍⚕️','Dokter')" style="padding:6px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:20px;color:var(--text);font-size:13px;cursor:pointer">👨‍⚕️ Dokter</button>
+      </div>
+      <input type="text" id="karakter" placeholder="Contoh: 🧕 Aku, 👱 Suami, 👶 Anak 5 tahun" />
+      <p style="margin-top:4px;font-size:11px;color:var(--muted)">Tap emoji di atas untuk tambah karakter otomatis</p>
     </div>
 
     <div class="form-group">
-      <label>Keunggulan Tambahan (opsional)</label>
-      <textarea id="context" placeholder="Poin-poin yang ingin dibahas, info tambahan..." style="height:80px"></textarea>
+      <label>📖 Cerita / Konteks</label>
+      <textarea id="context" placeholder="Ceritakan situasinya secara singkat...&#10;Contoh: Minta izin beli tasbih 3 biji, suami setuju, ternyata total belanja 180 juta karena beli tasbih mewah" style="height:100px"></textarea>
+    </div>
+
+    <div class="form-group">
+      <label>🎭 Ending Cerita</label>
+      <div class="pill-group" id="ending-group">
+        <div class="pill active" data-val="lucu dan receh">😂 Lucu</div>
+        <div class="pill" data-val="mengharukan dan baper">🥹 Mengharukan</div>
+        <div class="pill" data-val="plot twist tak terduga">😱 Plot Twist</div>
+        <div class="pill" data-val="cliffhanger penasaran">😏 Cliffhanger</div>
+        <div class="pill" data-val="refleksi dan pelajaran hidup">💭 Refleksi</div>
+      </div>
     </div>
 
     <div class="form-row">
@@ -650,6 +678,26 @@
   setupPills('tone-group', false);
   setupPills('hook-group', false);
   setupPills('extra-group', true);
+  setupPills('format-group', false);
+  setupPills('ending-group', false);
+
+  // Show/hide karakter field based on format
+  document.getElementById('format-group').addEventListener('click', () => {
+    setTimeout(() => {
+      const fmt = getSelected('format-group')[0] || 'narasi';
+      const show = fmt === 'dialog' || fmt === 'campuran narasi dan dialog';
+      document.getElementById('karakter-group').style.display = show ? 'block' : 'none';
+    }, 50);
+  });
+
+  function addKarakter(emoji, nama) {
+    const input = document.getElementById('karakter');
+    const current = input.value.trim();
+    const entry = `${emoji} ${nama}`;
+    if (!current.includes(emoji)) {
+      input.value = current ? current + ', ' + entry : entry;
+    }
+  }
 
   function getSelected(groupId) {
     return [...document.querySelectorAll(`#${groupId} .pill.active`)]
@@ -680,43 +728,44 @@
     const count = parseInt(document.getElementById('count').value);
     const lang = document.getElementById('lang').value;
     const context = document.getElementById('context').value.trim();
-    const shopeeRaw = '';
+    const karakter = document.getElementById('karakter') ? document.getElementById('karakter').value.trim() : '';
     const tone = getSelected('tone-group')[0] || 'santai dan relatable';
     const hook = getSelected('hook-group')[0] || 'pertanyaan provokatif';
     const extras = getSelected('extra-group');
+    const format = getSelected('format-group')[0] || 'narasi';
+    const ending = getSelected('ending-group')[0] || 'lucu dan receh';
 
     const extraText = extras.length ? `Gunakan elemen: ${extras.join(', ')}.` : '';
 
-    // Parse Shopee share text - extract only what's needed
-    const linkMatch = shopeeRaw.match(/https?:\/\/\S+/);
-    const shopeeLink = linkMatch ? linkMatch[0] : '';
-
-    // Extract product name - from "Temukan X seharga" or "Nama: X" pattern
-    let productName = '';
-    let productPrice = '';
-    const nameMatch = shopeeRaw.match(/Temukan\s+(.+?)\s+seharga/i) || shopeeRaw.match(/Nama:\s*(.+)/i);
-    const priceMatch = shopeeRaw.match(/seharga\s+(Rp[\d.,]+)/i) || shopeeRaw.match(/Harga:\s*(Rp[\d.,]+)/i) || shopeeRaw.match(/(Rp[\d.,]+)/);
-    if (nameMatch) productName = nameMatch[1].trim();
-    if (priceMatch) productPrice = priceMatch[1].trim();
-
-    // If can't parse, use raw but truncated
-    const productInfo = productName 
-      ? `Nama produk: ${productName}${productPrice ? ', Harga: ' + productPrice : ''}`
-      : shopeeRaw.replace(/https?:\/\/\S+/g, '').trim().slice(0, 120);
+    const isDialog = format === 'dialog' || format === 'campuran narasi dan dialog';
 
     const prompt = `Tulis ${count} post Threads bahasa ${lang} tentang: "${topic}".
-${context ? `Konteks: ${context}` : ''}
+${context ? `Konteks cerita: ${context}` : ''}
+${karakter ? `Karakter: ${karakter}` : ''}
 
+FORMAT: ${format}
+ENDING: ${ending}
 GAYA: Tone ${tone}. Hook: ${hook}. ${extraText}
 
-ATURAN:
-- Tiap post MAX 500 karakter, singkat & to the point
-- Kalimat pendek, 1-2 baris per kalimat, tidak bertele-tele
+${isDialog ? `ATURAN FORMAT DIALOG:
+- Gunakan emoji karakter di setiap baris dialog, contoh:
+  🧕 : Syg...
+  👱 : Hm?
+  🧕 : Kalau aku beli ini boleh nggak?
+- Setiap pergantian pembicara = baris baru
+- Boleh sisipkan narasi singkat dalam tanda kurung, contoh: (beberapa menit kemudian)
+- Dialog harus natural, seperti percakapan nyata
+- Ending sesuai pilihan: ${ending}` :
+`ATURAN FORMAT NARASI:
 - Post 1: hook kuat yang bikin orang berhenti scroll
 - Post tengah: bangun cerita, mengalir natural
-- Post terakhir: kesimpulan atau CTA natural
-- Bahasa casual seperti ngobrol teman, bukan artikel
-- DILARANG pakai markdown: jangan pakai *bold*, _italic_, atau format apapun`;
+- Post terakhir: ending ${ending}`}
+
+ATURAN UMUM:
+- Tiap post MAX 500 karakter
+- Bahasa casual seperti ngobrol teman
+- DILARANG pakai *bold*, _italic_, atau markdown apapun
+- Kalimat LENGKAP, tidak terpotong`;
 
     try {
       const model = document.getElementById('ai-model').value;
