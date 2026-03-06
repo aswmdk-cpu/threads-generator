@@ -740,8 +740,9 @@ ${shopeeLink ? `- Sisipkan ${shopeeLink} di post terakhir secara natural` : '- A
 
       const fullPrompt = `${prompt}
 
-OUTPUT: JSON saja, tanpa teks lain.
-{"threads":[{"num":1,"text":"..."},{"num":2,"text":"..."}]}`;
+PENTING: Buat TEPAT ${count} thread, tidak lebih tidak kurang.
+OUTPUT: JSON saja, tanpa teks lain. Array harus berisi tepat ${count} item.
+{"threads":[{"num":1,"text":"..."}]}`;
 
             const apiKey = getApiKey();
       if (!apiKey) throw new Error('Gemini API key belum diisi! Isi dulu di bagian atas.');
@@ -823,6 +824,11 @@ OUTPUT: JSON saja, tanpa teks lain.
           .map((text, i) => ({ num: i + 1, text }));
         if (threads.length === 0) throw new Error('Gagal memproses respon. Coba generate ulang.');
         parsed = { threads };
+      }
+
+      // Enforce exact count - trim if AI returned more
+      if (parsed.threads.length > count) {
+        parsed.threads = parsed.threads.slice(0, count);
       }
 
       renderThreads(parsed.threads);
